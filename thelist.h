@@ -68,6 +68,7 @@ public:
     ItemType DeleteHead();
     List<ItemType>::Iterator At(int n);
     bool IsEmpty();
+    void sort();
 
     List<ItemType>::Iterator begin();
     List<ItemType>::Iterator end();
@@ -174,6 +175,37 @@ bool List<ItemType>::IsEmpty(){
         return true;
     else
         return false;
+}
+
+template <class ItemType>
+void List<ItemType>::sort()
+{
+    Node *ptr = head;
+    ItemType tempItem;
+    int size = 0;
+
+    //Find the size of list
+    while (ptr)
+    {
+        ptr = ptr->next;
+        size++;
+    }
+    ptr = head;
+
+    for (int j=0; j < size; j++)
+    {
+        while (ptr->next)  //iterate through list until next is null
+        {
+            if (ptr->item > ptr->next->item)
+            {
+                tempItem = ptr->item;
+                ptr->item = ptr->next->item;
+                ptr->next->item = tempItem;
+            }
+            ptr = ptr->next;
+         }
+         ptr = head; //reset ptr
+    }
 }
 
 template <class ItemType>
