@@ -1,33 +1,37 @@
 #ifndef MEMBER_H
 #define MEMBER_H
 #include <string>
+#include "purchase.h"
+
+const double REBATE_RATE = 0.05;
+const double BASIC_DUES = 60.00;
+const double PREFERRED_DUES = 75.00;
 
 class member
 {
+    friend class purchaseHistory;
     public:
-        // MEMBER CONSTANT
-        static const double SALES_TAX_RATE = .0875;
-        static const double REBATE_RATE = 0.05;
-        // CONSTRUCTORS
+        // CONSTRUCTORS AND DESTRUCTOR
         member();
         member(const member& other);
+        ~member();
         // MODIFICATION MEMBER FUNCTIONS
         bool setName(std::string first, std::string last);
         bool setMembershipNumber(std::string number);
         bool setMembershipType(std::string type = "Basic");
-        bool setExpirationDate(int month, int day, int year);
-        bool enterPurchase(int m, int d, int y, std::string item,
+        bool setExpirationDate(std::string date);
+        bool enterPurchase(std::string date, std::string item,
                            double price, double quantity);
-        bool setTotalAmountSpent(double amountToAdd);
+        bool setAmountSpent(double amountToAdd);
         bool setRebateAmount();
         // CONSTANT MEMBER FUNCTIONS
-        std::string getFirstName() const;
-        std::string getLastName() const;
-        std::string getID() const;
-        std::string getMembershipType() const;
-        std::string getExpirationDate() const;
-        double getAmountSpent() const;
-        double getRebateAmount() const;
+        std::string getFirstName() const      {return firstName;}
+        std::string getLastName() const       {return lastName;}
+        std::string getID() const             {return membershipNumber;}
+        std::string getMembershipType() const {return membershipType;}
+        std::string getExpirationDate() const {return expirationDate;}
+        double getAmountSpent() const         {return totalAmountSpent;}
+        double getRebateAmount() const        {return rebateAmount;}
         bool shouldUpgradeOrDowngrade() const;
 
     private:
@@ -35,24 +39,21 @@ class member
         std::string lastName;
         std::string membershipNumber;
         std::string membershipType;
-        int expMonth;
-        int expDay;
-        int expYear;
+        std::string expirationDate;
         double totalAmountSpent;
         double rebateAmount;
-        struct purchase
-        {
-            int month;
-            int day;
-            int year;
-            std::string itemName;
-            double itemPrice;
-            double itemQuantity;
-            double subtotal;
-            double tax;
-            double total;
-        };
-        purchase* purchaseHistory;
+        memberPurchase* memberPurchases;
+};
+
+class memberList
+{
+    friend class member;
+    public:
+        memberList();
+        bool addMember();
+        bool deleteMember();
+    private:
+        List<member> allMembers;
 };
 
 #endif // MEMBER_H
