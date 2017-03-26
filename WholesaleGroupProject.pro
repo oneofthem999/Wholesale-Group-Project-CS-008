@@ -24,10 +24,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    item.cpp \
+    purchase.cpp \
+    inventory.cpp
 
 HEADERS  += mainwindow.h \
     thenode.h \
-    thelist.h
+    thelist.h \
+    item.h \
+    purchase.h \
+    inventory.h
 
 FORMS    += mainwindow.ui
