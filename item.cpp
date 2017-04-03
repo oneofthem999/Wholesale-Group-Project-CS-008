@@ -55,3 +55,27 @@ bool Item::operator>(const Item& RHS)
 {
     return (this->itemName > RHS.itemName);
 }
+
+bool Item::operator<(const Item& RHS)
+{
+    return (this->itemName < RHS.itemName);
+}
+
+bool Item::operator>=(const Item& RHS)
+{
+    return (this->itemName >= RHS.itemName);
+}
+
+bool Item::operator<=(const Item& RHS)
+{
+    return (this->itemName < RHS.itemName);
+}
+
+bool Item::operator==(const Item& RHS)
+{
+    return (itemName == RHS.itemName);
+}
+bool Item::operator!=(const Item& RHS)
+{
+    return (itemName != RHS.itemName);
+}
