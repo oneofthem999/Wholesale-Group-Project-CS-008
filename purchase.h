@@ -2,44 +2,38 @@
 #define PURCHASE_H
 #include <string>
 #include "thelist.h"
-
-const double SALES_TAX_RATE = .0875;
+#include "item.h"
 
 struct purchase
 {
     std::string transactionDate;
-    std::string itemName;
-    double itemPrice;
-    double itemQuantity;
-    double subtotal;
-    double tax;
-    double total;
+    Item item;
 };
 
 class memberPurchase
 {
-    public:
-        memberPurchase();
-        double addPurchase(std::string date, std::string item,
-                         double price, double quantity);
-        int size() const {return numberOfMemberPurchases;}
+public:
+    memberPurchase();
+    double addPurchase(std::string date, Item item);
+    int size() const { return numberOfMemberPurchases; }
 
-    private:
-        List<purchase> purchases;
-        int numberOfMemberPurchases;
+private:
+    List<purchase> purchases;
+    int numberOfMemberPurchases;
 };
 
 class purchaseHistory
 {
     friend class memberPurchase;
-    public:
-        purchaseHistory();
-        bool insertMemberPurchases(memberPurchase newPurchases);
-        int size() const {return numberOfTotalPurchases;}
+public:
+    purchaseHistory();
+    ~purchaseHistory();
+    bool insertMemberPurchases(const memberPurchase& newPurchases);
+    int size() const { return numberOfTotalPurchases; }
 
-    private:
-        List<memberPurchase> totalPurchases;
-        int numberOfTotalPurchases;
+private:
+    List<memberPurchase> totalPurchases;
+    int numberOfTotalPurchases;
 };
 
 #endif // PURCHASE_H

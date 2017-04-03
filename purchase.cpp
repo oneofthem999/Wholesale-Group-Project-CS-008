@@ -5,20 +5,14 @@ memberPurchase::memberPurchase()
     numberOfMemberPurchases = 0;
 }
 
-double memberPurchase::addPurchase(std::string date, std::string item,
-                 double price, double quantity)
+double memberPurchase::addPurchase(std::string date, Item item)
 {
     purchase newTransaction;
     newTransaction.transactionDate = date;
-    newTransaction.itemName = item;
-    newTransaction.itemPrice = price;
-    newTransaction.itemQuantity = quantity;
-    newTransaction.subtotal = price * quantity;
-    newTransaction.tax = newTransaction.subtotal * SALES_TAX_RATE;
-    newTransaction.total = newTransaction.subtotal + newTransaction.tax;
+    newTransaction.item = item;
     purchases.InsertHead(newTransaction);
     ++numberOfMemberPurchases;
-    return newTransaction.total;
+    return newTransaction.item.getTotal();
 }
 
 purchaseHistory::purchaseHistory()
@@ -26,7 +20,12 @@ purchaseHistory::purchaseHistory()
     numberOfTotalPurchases = 0;
 }
 
-bool purchaseHistory::insertMemberPurchases(memberPurchase newPurchases)
+purchaseHistory::~purchaseHistory()
+{
+
+}
+
+bool purchaseHistory::insertMemberPurchases(const memberPurchase &newPurchases)
 {
     totalPurchases.InsertHead(newPurchases);
     numberOfTotalPurchases += newPurchases.size();
