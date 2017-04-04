@@ -35,6 +35,10 @@ node<Item>* Inventory::search(const string name)
     return NULL;
 }
 
+int Inventory::quantityOfItem(const string name) { return search(name)->item.getItemQuantity(); }
+
+double Inventory::salesPriceOfItem(const string name) { return search(name)->item.getItemPrice(); }
+
 void Inventory::deleteFromInventory(const Item& itemToDelete)
 {
     node<Item> *temp = search(itemToDelete);

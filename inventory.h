@@ -10,6 +10,8 @@ public:
     void addToInventory(const Item&);
     node<Item>* search(const Item&);
     node<Item>* search(const string name);
+    int quantityOfItem(const string name);
+    double salesPriceOfItem(const string name);
     void deleteFromInventory(const Item&);
 private:
     List<Item> inventory;
