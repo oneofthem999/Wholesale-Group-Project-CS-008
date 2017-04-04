@@ -25,6 +25,7 @@ public:
     void enterPurchase(std::string date, Item item);
     void setAmountSpent(double amountToAdd);
     void setRebateAmount();
+
     // CONSTANT MEMBER FUNCTIONS
     std::string getFirstName() const { return firstName; }
     std::string getLastName() const { return lastName; }
@@ -34,6 +35,13 @@ public:
     double getAmountSpent() const { return totalAmountSpent; }
     double getRebateAmount() const { return rebateAmount; }
     bool shouldUpgradeOrDowngrade() const;
+
+    bool operator>(const member& RHS);
+    bool operator<(const member& RHS);
+    bool operator>=(const member& RHS);
+    bool operator<=(const member& RHS);
+    bool operator==(const member& RHS);
+    bool operator!=(const member& RHS);
 
 private:
     std::string firstName;

@@ -48,3 +48,5 @@ void Inventory::deleteFromInventory(const Item& itemToDelete)
     else
         inventory.DeleteHead();
 }
+
+List<Item>& Inventory::getInventory() { return inventory; }

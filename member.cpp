@@ -92,6 +92,13 @@ bool member::shouldUpgradeOrDowngrade() const
     return false;
 }
 
+bool member::operator<(const member& RHS) { return getFirstName() < RHS.getFirstName(); }
+bool member::operator<=(const member& RHS) { return getFirstName() <= RHS.getFirstName(); }
+bool member::operator>(const member& RHS) { return getFirstName() > RHS.getFirstName(); }
+bool member::operator>=(const member& RHS) { return getFirstName() >= RHS.getFirstName(); }
+bool member::operator==(const member& RHS) { return getFirstName() == RHS.getFirstName(); }
+bool member::operator!=(const member& RHS) { return getFirstName() != RHS.getFirstName(); }
+
 memberList::memberList()
 {
 
