@@ -25,6 +25,16 @@ node<Item>* Inventory::search(const Item& itemComp)
     return NULL;
 }
 
+node<Item>* Inventory::search(const string name)
+{
+    for (node<Item> *temp = inventory.begin(); temp != NULL; temp = temp->next)
+    {
+        if (temp->item.getItemName() == name)
+            return temp;
+    }
+    return NULL;
+}
+
 void Inventory::deleteFromInventory(const Item& itemToDelete)
 {
     node<Item> *temp = search(itemToDelete);
