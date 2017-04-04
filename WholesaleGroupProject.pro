@@ -27,13 +27,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     item.cpp \
     purchase.cpp \
-    inventory.cpp
+    inventory.cpp \
+    member.cpp
 
 HEADERS  += mainwindow.h \
     thenode.h \
     thelist.h \
     item.h \
     purchase.h \
-    inventory.h
+    inventory.h \
+    member.h
 
 FORMS    += mainwindow.ui
