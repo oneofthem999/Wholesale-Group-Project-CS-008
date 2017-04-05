@@ -25,6 +25,7 @@ public:
     void enterPurchase(std::string date, Item item);
     void setAmountSpent(double amountToAdd);
     void setRebateAmount();
+    memberPurchase* getMemberPurchase() { return memberPurchases; }
 
     // CONSTANT MEMBER FUNCTIONS
     std::string getFirstName() const { return firstName; }
@@ -62,6 +63,8 @@ public:
     void addMember(member mem);
     void deleteMember(string firstName, string LastName);
     void deleteMember(string id);
+    memberPurchase* memberPurchaseSearch(string firstName, string LastName);
+    memberPurchase* memberPurchaseSearch(string id);
 private:
     List<member> allMembers;
 };

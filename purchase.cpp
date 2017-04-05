@@ -1,5 +1,7 @@
 #include "purchase.h"
 
+bool purchase::operator!=(const purchase& RHS) { return ((transactionDate != RHS.transactionDate) || (item != RHS.item)); }
+
 ostream& operator<<(ostream& out, purchase purch)
 {
     out << purch.item << endl;
@@ -79,6 +81,23 @@ ostream& operator<<(ostream& out, memberPurchase member)
 purchaseHistory::purchaseHistory()
 {
     numberOfTotalPurchases = 0;
+}
+
+bool purchaseHistory::isInList(memberPurchase mem)
+{
+    bool result = true;
+    for (node<memberPurchase>* temp = totalPurchases.begin(); temp != NULL; temp = temp->next)
+    {
+        for (node<purchase>* temp2 = temp->item.getPurchases().begin(), *temp3 = mem.getPurchases().begin(); temp2 != NULL ; temp2 = temp2->next, temp3 = temp3->next)
+        {
+            if (temp2->item != temp3->item)
+            {
+                result = false;
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 void purchaseHistory::insertMemberPurchases(memberPurchase newPurchases)

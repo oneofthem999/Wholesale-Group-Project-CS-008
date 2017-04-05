@@ -3,9 +3,13 @@
 member::member()
 {
     memberPurchases = new memberPurchase();
-    history.insertMemberPurchases(*memberPurchases);
     totalAmountSpent = 0;
     rebateAmount = 0;
+    /*firstName = "John";
+    lastName = "Doe";
+    membershipNumber = "1234";
+    membershipType = "Basic";
+    expirationDate = "5/4/2017";*/
 }
 
 member::member(const member& other)
@@ -57,6 +61,8 @@ void member::setExpirationDate(std::string date)
 void member::enterPurchase(std::string date, Item item)
 {
     setAmountSpent(memberPurchases->addPurchase(date, item));
+    if (history.isInList(*memberPurchases))
+        history.insertMemberPurchases(*memberPurchases);
 }
 
 void member::setAmountSpent(double amountToAdd)
@@ -136,4 +142,26 @@ void memberList::deleteMember(string id)
                 allMembers.DeleteHead();
         }
     }
+}
+
+memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
+{
+    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    {
+        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
+            return temp->item.getMemberPurchase();
+    }
+    cout << "There is no member named " << firstName << " " << lastName << " stored in program." << endl;
+    return NULL;
+}
+
+memberPurchase* memberList::memberPurchaseSearch(string id)
+{
+    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    {
+        if (temp->item.getID() == id)
+            return temp->item.getMemberPurchase();
+    }
+    cout << "There is no member with ID number " << id << " stored in program." << endl;
+    return NULL;
 }

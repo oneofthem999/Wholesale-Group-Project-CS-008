@@ -9,7 +9,10 @@ struct purchase
     std::string transactionDate;
     Item item;
 
+    bool operator!=(const purchase& RHS);
+
     friend ostream& operator<<(ostream& out, purchase purch);
+
 };
 
 class memberPurchase
@@ -38,6 +41,7 @@ class purchaseHistory
 public:
     purchaseHistory();
     void insertMemberPurchases(memberPurchase newPurchases);
+    bool isInList(memberPurchase mem);
     int size() const { return numberOfTotalPurchases; }
 
 private:
