@@ -1,17 +1,4 @@
 #include "member.h"
-<<<<<<< HEAD
-
-member::member()
-{
-    memberPurchases = new memberPurchase();
-    totalAmountSpent = 0;
-    rebateAmount = 0;
-    /*firstName = "John";
-    lastName = "Doe";
-    membershipNumber = "1234";
-    membershipType = "Basic";
-    expirationDate = "5/4/2017";*/
-=======
 #include <fstream>
 #include <cctype>
 #include <sstream>
@@ -35,14 +22,10 @@ member::member(std::string first, std::string last, std::string number,
     totalAmountSpent = 0;
     rebateAmount = 0;
     memberPurchases = new memberPurchase;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 member::member(const member& other)
 {
-<<<<<<< HEAD
-    if (this != &other)
-=======
     firstName = other.firstName;
     lastName = other.lastName;
     membershipNumber = other.membershipNumber;
@@ -56,7 +39,6 @@ member::member(const member& other)
 member& member::operator=(const member& other)
 {
     if(this != &other)
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
     {
         firstName = other.firstName;
         lastName = other.lastName;
@@ -67,10 +49,7 @@ member& member::operator=(const member& other)
         totalAmountSpent = other.totalAmountSpent;
         rebateAmount = other.rebateAmount;
     }
-<<<<<<< HEAD
-=======
     return *this;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 member::~member()
@@ -78,17 +57,6 @@ member::~member()
     memberPurchases = NULL;
 }
 
-<<<<<<< HEAD
-void member::setName(std::string first, std::string last)
-{
-    firstName = first;
-    lastName = last;
-}
-
-void member::setMembershipNumber(std::string number)
-{
-    membershipNumber = number;
-=======
 bool member::setName(std::string first, std::string last)
 {
     for(size_t i = 0; i < first.length() - 1; ++i)
@@ -118,16 +86,11 @@ bool member::setMembershipNumber(std::string number)
         return true;
     }
     return false;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 bool member::setMembershipType(std::string type)
 {
-<<<<<<< HEAD
-    if (type == "Basic" || type == "Preferred")
-=======
     if(type == "Basic" || type == "Preferred")
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
     {
         membershipType = type;
         return true;
@@ -135,17 +98,11 @@ bool member::setMembershipType(std::string type)
     return false;
 }
 
-<<<<<<< HEAD
-void member::setExpirationDate(std::string date)
-{
-    expirationDate = date;
-=======
 bool member::setExpirationDate(std::string date)
 {
     // add error checking
     expirationDate = date;
     return true;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 void member::enterPurchase(std::string date, Item item)
@@ -162,45 +119,26 @@ void member::setAmountSpent(double amountToAdd)
 
 void member::setRebateAmount()
 {
-<<<<<<< HEAD
-    if (membershipType == "Preferred")
-    {
-        double rebate;
-        rebateAmount = totalAmountSpent / 1.0875 * REBATE_RATE;
-=======
     if(membershipType == "Preferred")
     {
         double totalWithNoTax = totalAmountSpent / 1.0875;
         rebateAmount = totalWithNoTax * REBATE_RATE;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
     }
 }
 
 bool member::shouldUpgradeOrDowngrade() const
 {
-<<<<<<< HEAD
-    if (membershipType == "Basic")
-    {
-        double potentialRebate;
-        potentialRebate = totalAmountSpent / 1.0875 * REBATE_RATE;
-        if (potentialRebate > PREFERRED_DUES - BASIC_DUES)
-=======
     if(membershipType == "Basic")
     {
         double potentialRebate;
         potentialRebate = totalAmountSpent / 1.0875 * REBATE_RATE;
         if(potentialRebate > PREFERRED_DUES - BASIC_DUES)
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
             return true;
     }
 
     else
     {
-<<<<<<< HEAD
-        if (rebateAmount < PREFERRED_DUES - BASIC_DUES)
-=======
         if(rebateAmount < PREFERRED_DUES - BASIC_DUES)
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
             return true;
     }
 
@@ -214,11 +152,6 @@ bool member::operator>=(const member& RHS) { return getFirstName() >= RHS.getFir
 bool member::operator==(const member& RHS) { return getFirstName() == RHS.getFirstName(); }
 bool member::operator!=(const member& RHS) { return getFirstName() != RHS.getFirstName(); }
 
-<<<<<<< HEAD
-memberList::memberList()
-{
-
-=======
 ostream& operator<<(ostream& out, member& x)
 {
     out << x.getFirstName() << " " << x.getLastName()  << "\n"
@@ -233,17 +166,13 @@ ostream& operator<<(ostream& out, member& x)
 memberList::memberList()
 {
     numberOfMembers = 0;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 void memberList::addMember(member mem)
 {
     allMembers.InsertHead(mem);
     allMembers.sort();
-<<<<<<< HEAD
-=======
     ++numberOfMembers;
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 void memberList::deleteMember(string firstName, string lastName)
@@ -274,8 +203,6 @@ void memberList::deleteMember(string id)
     }
 }
 
-<<<<<<< HEAD
-=======
 node<member>* memberList::search(std::string id)
 {
     for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
@@ -286,7 +213,6 @@ node<member>* memberList::search(std::string id)
     return NULL;
 }
 
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
 {
     for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
@@ -308,8 +234,6 @@ memberPurchase* memberList::memberPurchaseSearch(string id)
     cout << "There is no member with ID number " << id << " stored in program." << endl;
     return NULL;
 }
-<<<<<<< HEAD
-=======
 
 void memberList::updateMemberName(member &updated, std::string first, std::string last)
 {
@@ -387,4 +311,3 @@ ostream& operator<<(ostream& out, memberList& x)
     }
     return out;
 }
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92

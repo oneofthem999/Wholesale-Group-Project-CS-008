@@ -5,11 +5,7 @@ using namespace std;
 Item::Item(string name, double price, int quantity, double sTotal, double taxes, double trueTotal)
     : itemName(name), itemPrice(price), itemQuantity(quantity), subtotal(sTotal), tax(taxes), total(trueTotal)
 {
-<<<<<<< HEAD
-
-=======
     setTotal();
->>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 std::string Item::getItemName() { return itemName; }
