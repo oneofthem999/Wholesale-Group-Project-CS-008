@@ -24,6 +24,11 @@ class Item
         void setTotal();
 
         bool operator>(const Item& RHS);
+        bool operator<(const Item& RHS);
+        bool operator>=(const Item& RHS);
+        bool operator<=(const Item& RHS);
+        bool operator==(const Item& RHS);
+        bool operator!=(const Item& RHS);
 
     private:
         std::string itemName;

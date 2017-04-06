@@ -1,13 +1,14 @@
 #include "member.h"
 #include <fstream>
 #include <cctype>
+#include <sstream>
+#include <QDebug>
 
 member::member()
 {
     totalAmountSpent = 0;
     rebateAmount = 0;
     memberPurchases = new memberPurchase;
-//    history.insertMemberPurchases(*memberPurchases);
 }
 
 member::member(std::string first, std::string last, std::string number,
@@ -61,13 +62,13 @@ bool member::setName(std::string first, std::string last)
     for(size_t i = 0; i < first.length() - 1; ++i)
     {
         char ch = first[i];
-        if(!isalpha(ch) && ch != ' ' && ch != '-')
+        if(!isalpha(ch) && ch != '-')
             return false;
     }
     for(size_t i = 0; i < last.length() - 1; ++i)
     {
         char ch = last[i];
-        if(!isalpha(ch) && ch != ' ' && ch != '-')
+        if(!isalpha(ch) && ch != '-')
             return false;
     }
     first[0] = toupper(first[0]);
@@ -104,30 +105,25 @@ bool member::setExpirationDate(std::string date)
     return true;
 }
 
-bool member::insertPurchase(std::string date, Item item)
+void member::enterPurchase(std::string date, Item item)
 {
-    // add error checking
-    double total = memberPurchases->addPurchase(date, item);
-    setAmountSpent(total);
-    return true;
+    setAmountSpent(memberPurchases->addPurchase(date, item));
+    if (history.isInList(*memberPurchases))
+        history.insertMemberPurchases(*memberPurchases);
 }
 
-bool member::setAmountSpent(double amountToAdd)
+void member::setAmountSpent(double amountToAdd)
 {
-    // add error checking
     totalAmountSpent += amountToAdd;
-    return true;
 }
 
-bool member::setRebateAmount()
+void member::setRebateAmount()
 {
     if(membershipType == "Preferred")
     {
         double totalWithNoTax = totalAmountSpent / 1.0875;
         rebateAmount = totalWithNoTax * REBATE_RATE;
-        return true;
     }
-    return false;
 }
 
 bool member::shouldUpgradeOrDowngrade() const
@@ -149,94 +145,169 @@ bool member::shouldUpgradeOrDowngrade() const
     return false;
 }
 
+bool member::operator<(const member& RHS) { return getFirstName() < RHS.getFirstName(); }
+bool member::operator<=(const member& RHS) { return getFirstName() <= RHS.getFirstName(); }
+bool member::operator>(const member& RHS) { return getFirstName() > RHS.getFirstName(); }
+bool member::operator>=(const member& RHS) { return getFirstName() >= RHS.getFirstName(); }
+bool member::operator==(const member& RHS) { return getFirstName() == RHS.getFirstName(); }
+bool member::operator!=(const member& RHS) { return getFirstName() != RHS.getFirstName(); }
+
+ostream& operator<<(ostream& out, member& x)
+{
+    out << x.getFirstName() << " " << x.getLastName()  << "\n"
+        << x.getID() << "\n"
+        << x.getMembershipType() << "\n"
+        << x.getExpirationDate() << "\n";
+    return out;
+}
+
+
 
 memberList::memberList()
 {
-
+    numberOfMembers = 0;
 }
 
-memberList::~memberList()
+void memberList::addMember(member mem)
 {
-
+    allMembers.InsertHead(mem);
+    allMembers.sort();
+    ++numberOfMembers;
 }
 
-void memberList::addMember(member &newMember)
+void memberList::deleteMember(string firstName, string lastName)
 {
-    allMembers.InsertHead(newMember);
-    allPurchases.insertMemberPurchases(*newMember.getPurchases());
-}
-
-void memberList::deleteMember(const member &memberToDelete)
-{
-//    List<member>::Iterator iter = allMembers.Search(memberToDelete);
-//    allMembers.DeleteNode(iter);
-}
-
-member memberList::findMember(std::string ID)
-{
-    List<member>::Iterator it = allMembers.begin();
-    while(it != allMembers.end())
+    for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
     {
-        member cursor = *it;
-        if(cursor.getID() == ID)
-            return cursor;
+        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
+        {
+            if (temp != allMembers.begin())
+                allMembers.DeleteNode(temp);
+            else
+                allMembers.DeleteHead();
+        }
     }
+}
+
+void memberList::deleteMember(string id)
+{
+    for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    {
+        if (temp->item.getID() == id)
+        {
+            if (temp != allMembers.begin())
+                allMembers.DeleteNode(temp);
+            else
+                allMembers.DeleteHead();
+        }
+    }
+}
+
+node<member>* memberList::search(std::string id)
+{
+    for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    {
+        if (temp->item.getID() == id)
+            return temp;
+    }
+    return NULL;
+}
+
+memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
+{
+    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    {
+        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
+            return temp->item.getMemberPurchase();
+    }
+    cout << "There is no member named " << firstName << " " << lastName << " stored in program." << endl;
+    return NULL;
+}
+
+memberPurchase* memberList::memberPurchaseSearch(string id)
+{
+    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    {
+        if (temp->item.getID() == id)
+            return temp->item.getMemberPurchase();
+    }
+    cout << "There is no member with ID number " << id << " stored in program." << endl;
+    return NULL;
+}
+
+void memberList::updateMemberName(member &updated, std::string first, std::string last)
+{
+    search(updated.getID())->item.setName(first, last);
 }
 
 bool memberList::readMemberFile(std::string filename)
 {
     fstream file;
     file.open(filename, ios::in);
-    if(!file)
-        return false;
-    string line;
-    while(!file.eof())
-    {
-        member newMember;
-        string first, last, ID, type, exp;
-        file >> first >> last >> ID >> type >> exp;
-        newMember.setName(first, last);
-        newMember.setMembershipNumber(ID);
-        newMember.setMembershipType(type);
-        newMember.setExpirationDate(exp);
-        addMember(newMember);
+    if(file.is_open()){
+        string name;
+        while(getline(file,name))
+        {
+            stringstream ss;
+            string first, last, ID, type, exp;
+            ss << name;
+            ss >> first >> last;
+            getline(file,ID);
+            ss << ID;
+            ss >> ID;
+            getline(file,type);
+            ss << type;
+            ss >> type;
+            getline(file,exp);
+            ss << exp;
+            ss >> exp;
+
+            member newMember;
+            newMember.setName(first, last);
+            newMember.setMembershipNumber(ID);
+            newMember.setMembershipType(type);
+            newMember.setExpirationDate(exp);
+            addMember(newMember);
+        }
+        file.close();
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool memberList::readSalesFile(std::string filename)
 {
     fstream file;
     file.open(filename, ios::in);
-    if(!file)
-        return false;
-    string line;
-    while(!file.eof())
-    {
-        purchase newPurchase;
-        string date, memberID, itemname;
-        double price;
-        int quantity;
-        file >> date >> memberID >> itemname >> price >> quantity;
-        member purchaser = findMember(memberID);
-        Item itembought(itemname, price, quantity);
-        purchaser.insertPurchase(date, itembought);
+    string date;
+    if(file.is_open()){
+        while(getline(file, date))
+        {
+            string itemname, memberID, numbers;
+            stringstream ss;
+            double price;
+            int quantity;
+            getline(file,memberID);
+            getline(file, itemname);
+            getline(file, numbers);
+            ss << numbers;
+            ss >> price >> quantity;
+            Item item(itemname, price, quantity);
+            node<member>* findMember = search(memberID);
+            findMember->item.enterPurchase(date, item);
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 ostream& operator<<(ostream& out, memberList& x)
 {
-    List<member>::Iterator it = x.allMembers.begin();
-    while(it != x.allMembers.end())
+    node<member>* cursor = x.allMembers.begin();
+    while(cursor != NULL)
     {
-        member* cursor = &*it;
-        out << cursor->getFirstName() << " " <<cursor->getLastName() << " "
-            << cursor->getID() << " " << cursor->getMembershipType() << " "
-            << cursor->getExpirationDate() << " "
-            << cursor->getPurchases()->size() << "\n";
-        it.next();
+        out << cursor->item;
+        cursor = cursor->next;
     }
-
     return out;
 }

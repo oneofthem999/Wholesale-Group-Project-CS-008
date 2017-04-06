@@ -5,7 +5,7 @@ using namespace std;
 Item::Item(string name, double price, int quantity, double sTotal, double taxes, double trueTotal)
     : itemName(name), itemPrice(price), itemQuantity(quantity), subtotal(sTotal), tax(taxes), total(trueTotal)
 {
-
+    setTotal();
 }
 
 std::string Item::getItemName() { return itemName; }
@@ -54,4 +54,28 @@ void Item::setTotal()
 bool Item::operator>(const Item& RHS)
 {
     return (this->itemName > RHS.itemName);
+}
+
+bool Item::operator<(const Item& RHS)
+{
+    return (this->itemName < RHS.itemName);
+}
+
+bool Item::operator>=(const Item& RHS)
+{
+    return (this->itemName >= RHS.itemName);
+}
+
+bool Item::operator<=(const Item& RHS)
+{
+    return (this->itemName < RHS.itemName);
+}
+
+bool Item::operator==(const Item& RHS)
+{
+    return (itemName == RHS.itemName);
+}
+bool Item::operator!=(const Item& RHS)
+{
+    return (itemName != RHS.itemName);
 }
