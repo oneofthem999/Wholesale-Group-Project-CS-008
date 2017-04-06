@@ -18,18 +18,30 @@ public:
 
     //basic functions
     void InsertAfter(const ItemType &insertMe, node<ItemType>* afterMe);
+<<<<<<< HEAD
     void List<ItemType>::InsertBefore(const ItemType &insertMe,
         node<ItemType>* beforeMe);
+=======
+    void InsertBefore(const ItemType &insertMe, node<ItemType>* beforeMe);
+>>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
     void InsertHead(const ItemType &insertMe);
     void Insert(const ItemType &insertMe);
     void DeleteNode(node<ItemType>* deleteMe);
     void DeleteAll();
     void DeleteHead();
+<<<<<<< HEAD
     node<ItemType>* List<ItemType>::At(int n);
     bool IsEmpty();
     void sort();
 
     node<ItemType>* List<ItemType>::begin();
+=======
+    node<ItemType>* At(int n);
+    bool IsEmpty();
+    void sort();
+
+    node<ItemType>* begin();
+>>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 
     //friends
     template <class ItemTypeF>
@@ -123,7 +135,11 @@ void List<ItemType>::DeleteAll()
 template <class ItemType>
 node<ItemType>* List<ItemType>::At(int n)
 {
+<<<<<<< HEAD
     return at(head, n);
+=======
+    return at(headptr, n);
+>>>>>>> 0a42db703a0f5d93767bd7117a704ee57cec3a92
 }
 
 template <class ItemType>
