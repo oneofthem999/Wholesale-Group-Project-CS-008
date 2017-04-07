@@ -1,13 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QMainWindow>
-#include <QTableWidget>
-#include <QRect>
-#include <QString>
 
-#include "member.h"
+#include <QMainWindow>
+#include <vector>
+#include <QString>
+#include <fstream>
+
 
 namespace Ui {
 class MainWindow;
@@ -20,19 +18,26 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void getMemberInfo(std::string filename);
-    void getSalesInfo(std::string filename);
-    void display();
+    getInfo(std::string fileName);
+    display();
 
 public slots:
     void give();
-    void profile();
+
+private slots:
+    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
-    memberList members;
-    QTableWidget* table;
-    QTableWidget* table1;
+
+    std::vector<QString> member;
+    std::vector<QString> memberID;
+    std::vector<QString> date;
+    std::vector<QString> price;
+    std::vector<QString> item;
+    std::vector<QString> quantity;
+    int column = 0;
+    int row = 11;
 
 };
 

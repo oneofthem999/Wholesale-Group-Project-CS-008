@@ -1,6 +1,7 @@
 #include "mainwindow.h"
-#include "member.h"
+#include "inputwindow.h"
 #include <QApplication>
+#include <fstream>
 
 int main(int argc, char *argv[])
 {
@@ -8,6 +9,7 @@ int main(int argc, char *argv[])
     MainWindow w;
 
     w.show();
+    w.getInfo("shoppers.txt");
     w.display();
 
     return a.exec();
