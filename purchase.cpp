@@ -1,9 +1,10 @@
 #include "purchase.h"
+#include <QDebug>
 
 bool purchase::operator!=(const purchase& RHS)
 { return ((transactionDate != RHS.transactionDate) || (item != RHS.item)); }
 
-ostream& operator<<(ostream& out, purchase purch)
+ostream& operator<<(ostream& out, purchase& purch)
 {
     out << purch.transactionDate << endl
         << purch.item.getItemName() << endl
@@ -14,17 +15,21 @@ ostream& operator<<(ostream& out, purchase purch)
 
 memberPurchase::memberPurchase()
 {
-    numberOfMemberPurchases = 0;
+    numberOfPurchases = 0;
 }
 
-double memberPurchase::addPurchase(std::string date, Item item)
+void memberPurchase::addPurchase(std::string date, Item& item)
 {
     purchase newTransaction;
     newTransaction.transactionDate = date;
     newTransaction.item = item;
     purchases.InsertHead(newTransaction);
-    ++numberOfMemberPurchases;
-    return newTransaction.item.getTotal();
+    ++numberOfPurchases;
+}
+
+void memberPurchase::changeID(std::string id)
+{
+    memberID = id;
 }
 
 double memberPurchase::totalPurchaseCost()
@@ -48,7 +53,7 @@ double memberPurchase::totalPurchaseCostOnDate(string date)
 
 List<purchase>& memberPurchase::getPurchases() { return purchases; }
 
-node<purchase>* memberPurchase::search(Item itemComp)
+node<purchase>* memberPurchase::search(Item& itemComp)
 {
     node<purchase> *temp = purchases.begin();
     {
@@ -70,7 +75,7 @@ node<purchase>* memberPurchase::search(std::string transactionDateComp)
     return NULL;
 }
 
-ostream& operator<<(ostream& out, memberPurchase member)
+ostream& operator<<(ostream& out, memberPurchase& member)
 {
     for (node<purchase>* temp = member.getPurchases().begin(); temp != NULL; temp = temp->next)
     {
@@ -85,7 +90,7 @@ purchaseHistory::purchaseHistory()
     numberOfTotalPurchases = 0;
 }
 
-bool purchaseHistory::isInList(memberPurchase mem)
+bool purchaseHistory::isInList(memberPurchase &mem)
 {
     bool result = true;
     for (node<memberPurchase>* temp = totalPurchases.begin(); temp != NULL; temp = temp->next)
@@ -103,8 +108,31 @@ bool purchaseHistory::isInList(memberPurchase mem)
     return result;
 }
 
-void purchaseHistory::insertMemberPurchases(memberPurchase newPurchases)
+node<memberPurchase>* purchaseHistory::search(memberPurchase& target)
 {
-    totalPurchases.InsertHead(newPurchases);
-    numberOfTotalPurchases += newPurchases.size();
+    node<memberPurchase>* temp = totalPurchases.begin();
+    while(temp != NULL)
+    {
+        if (temp->item.getMemberID() == target.getMemberID())
+            return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+void purchaseHistory::insertMemberPurchases(memberPurchase& newPurchases)
+{
+    node<memberPurchase>* found = search(newPurchases);
+    if(found){
+        numberOfTotalPurchases -= found->item.size();
+        node<memberPurchase>* temp = found->next;
+        *found = newPurchases;
+        found->next = temp;
+        numberOfTotalPurchases += found->item.size();
+    }
+    else{
+        totalPurchases.InsertHead(newPurchases);
+        totalPurchases.sort();
+        numberOfTotalPurchases += newPurchases.size();
+    }
 }

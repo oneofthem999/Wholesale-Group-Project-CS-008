@@ -26,11 +26,13 @@ public:
 
 public slots:
     void give();
+    void profile();
 
 private:
     Ui::MainWindow *ui;
     memberList members;
     QTableWidget* table;
+    QTableWidget* table1;
 
 };
 

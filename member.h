@@ -7,7 +7,6 @@
 const double REBATE_RATE = 0.05;
 const double BASIC_DUES = 60.00;
 const double PREFERRED_DUES = 75.00;
-static purchaseHistory history = purchaseHistory();
 
 class member
 {
@@ -25,7 +24,7 @@ class member
         bool setMembershipNumber(std::string number);
         bool setMembershipType(std::string type = "Basic");
         bool setExpirationDate(std::string date);
-        void enterPurchase(std::string date, Item item);
+        void enterPurchase(std::string date, Item &item);
         void setAmountSpent(double amountToAdd);
         void setRebateAmount();
 
@@ -69,19 +68,23 @@ class memberList
         void addMember(member mem);
         void deleteMember(string firstName, string LastName);
         void deleteMember(string id);
+        void addPurchases(node<member>* mem, std::string date, Item &item);
         node<member>* search(string id);
         memberPurchase* memberPurchaseSearch(string firstName, string LastName);
         memberPurchase* memberPurchaseSearch(string id);
-        void updateMemberName(member &updated, std::string first, std::string last);
+        bool editMemberName(member &updated, std::string first, std::string last);
         bool readMemberFile(std::string filename);
         bool readSalesFile(std::string filename);
-        purchaseHistory getAllPurchases() const {return history;}
+        purchaseHistory& getAllPurchases() {return allPurchases;}
         List<member>& getMembers() {return allMembers;}
+        double getGrandTotal() {return grandTotal;}
         int size() {return numberOfMembers;}
         friend ostream& operator<<(ostream& out, memberList& x);
 
     private:
         List<member> allMembers;
+        purchaseHistory allPurchases;
+        double grandTotal;
         int numberOfMembers;
 };
 

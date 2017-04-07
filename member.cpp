@@ -8,7 +8,7 @@ member::member()
 {
     totalAmountSpent = 0;
     rebateAmount = 0;
-    memberPurchases = new memberPurchase;
+    memberPurchases = new memberPurchase();
 }
 
 member::member(std::string first, std::string last, std::string number,
@@ -21,7 +21,8 @@ member::member(std::string first, std::string last, std::string number,
     membershipType = type;
     totalAmountSpent = 0;
     rebateAmount = 0;
-    memberPurchases = new memberPurchase;
+    memberPurchases = new memberPurchase();
+    memberPurchases->changeID(membershipNumber);
 }
 
 member::member(const member& other)
@@ -83,6 +84,7 @@ bool member::setMembershipNumber(std::string number)
     if(number.find_first_not_of("0123456789") == std::string::npos)
     {
         membershipNumber = number;
+        memberPurchases->changeID(number);
         return true;
     }
     return false;
@@ -105,16 +107,16 @@ bool member::setExpirationDate(std::string date)
     return true;
 }
 
-void member::enterPurchase(std::string date, Item item)
+void member::enterPurchase(std::string date, Item& item)
 {
-    setAmountSpent(memberPurchases->addPurchase(date, item));
-    if (history.isInList(*memberPurchases))
-        history.insertMemberPurchases(*memberPurchases);
+    memberPurchases->addPurchase(date, item);
+    setAmountSpent(item.getTotal());
 }
 
 void member::setAmountSpent(double amountToAdd)
 {
     totalAmountSpent += amountToAdd;
+    setRebateAmount();
 }
 
 void member::setRebateAmount()
@@ -166,13 +168,19 @@ ostream& operator<<(ostream& out, member& x)
 memberList::memberList()
 {
     numberOfMembers = 0;
+    grandTotal = 0;
 }
 
 void memberList::addMember(member mem)
 {
-    allMembers.InsertHead(mem);
-    allMembers.sort();
-    ++numberOfMembers;
+    if(search(mem.getID()) == NULL) // makes sure no member with duplicate ID is added
+    {
+        allMembers.InsertHead(mem);
+        allMembers.sort();
+        if(!mem.getMemberPurchase()->getPurchases().IsEmpty())
+            allPurchases.insertMemberPurchases(*mem.getMemberPurchase());
+        ++numberOfMembers;
+    }
 }
 
 void memberList::deleteMember(string firstName, string lastName)
@@ -203,12 +211,21 @@ void memberList::deleteMember(string id)
     }
 }
 
+void memberList::addPurchases(node<member>* mem, std::string date, Item& item)
+{
+    mem->item.enterPurchase(date, item);
+    allPurchases.insertMemberPurchases(*mem->item.getMemberPurchase());
+    grandTotal += item.getTotal();
+}
+
 node<member>* memberList::search(std::string id)
 {
-    for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    node<member>* temp = allMembers.begin();
+    while(temp != NULL)
     {
         if (temp->item.getID() == id)
             return temp;
+        temp = temp->next;
     }
     return NULL;
 }
@@ -235,17 +252,18 @@ memberPurchase* memberList::memberPurchaseSearch(string id)
     return NULL;
 }
 
-void memberList::updateMemberName(member &updated, std::string first, std::string last)
+bool memberList::editMemberName(member &updated, std::string first, std::string last)
 {
-    search(updated.getID())->item.setName(first, last);
+    node<member>* edited = search(updated.getID());
+    return edited->item.setName(first, last);
 }
 
 bool memberList::readMemberFile(std::string filename)
 {
     fstream file;
     file.open(filename, ios::in);
+    string name;
     if(file.is_open()){
-        string name;
         while(getline(file,name))
         {
             stringstream ss;
@@ -287,14 +305,18 @@ bool memberList::readSalesFile(std::string filename)
             stringstream ss;
             double price;
             int quantity;
+            ss << date;
+            ss >> date;
             getline(file,memberID);
+            ss << memberID;
+            ss >> memberID;
             getline(file, itemname);
             getline(file, numbers);
             ss << numbers;
             ss >> price >> quantity;
-            Item item(itemname, price, quantity);
+            Item purchased(itemname, price, quantity);
             node<member>* findMember = search(memberID);
-            findMember->item.enterPurchase(date, item);
+            addPurchases(findMember, date, purchased);
         }
         return true;
     }

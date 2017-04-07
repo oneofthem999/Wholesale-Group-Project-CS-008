@@ -9,27 +9,33 @@ struct purchase
     std::string transactionDate;
     Item item;
     bool operator!=(const purchase& RHS);
-    friend ostream& operator<<(ostream& out, purchase purch);
+    friend ostream& operator<<(ostream& out, purchase& purch);
 };
 
 class memberPurchase
 {
 public:
     memberPurchase();
-    double addPurchase(std::string date, Item item);
-    int size() const { return numberOfMemberPurchases; }
-    node<purchase>* search(Item item);
-    node<purchase>* search(std::string transactionDate);
+    memberPurchase(std::string id);
+    void addPurchase(std::string date, Item& item);
+    void changeID(std::string id);
 
+    node<purchase>* search(Item& item);
+    node<purchase>* search(std::string transactionDate);
     double totalPurchaseCostOnDate(std::string transactionDate);
     double totalPurchaseCost();
     List<purchase>& getPurchases();
+    std::string getMemberID(){ return memberID; }
+    int size() const { return numberOfPurchases; }
+    bool operator>(const memberPurchase& RHS){return memberID > RHS.memberID;}
 
-    friend ostream& operator<<(ostream &out, List<purchase> purch);
+
+    friend ostream& operator<<(ostream &out, List<purchase>& purch);
 
 private:
     List<purchase> purchases;
-    int numberOfMemberPurchases;
+    std::string memberID;
+    int numberOfPurchases;
 };
 
 class purchaseHistory
@@ -37,9 +43,11 @@ class purchaseHistory
     friend class memberPurchase;
 public:
     purchaseHistory();
-    bool isInList(memberPurchase mem);
-    void insertMemberPurchases(memberPurchase newPurchases);
+    bool isInList(memberPurchase& mem);
+    node<memberPurchase>* search(memberPurchase& target);
+    void insertMemberPurchases(memberPurchase& newPurchases);
     int size() const { return numberOfTotalPurchases; }
+    List<memberPurchase>& getTotalPurchases(){return totalPurchases;}
 
 private:
     List<memberPurchase> totalPurchases;
