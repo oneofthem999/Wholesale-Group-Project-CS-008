@@ -1,7 +1,7 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
 #include "thelist.h"
-#include "Item.h"
+#include "item.h"
 
 class Inventory
 {
@@ -10,6 +10,7 @@ public:
     void addToInventory(const Item&);
     node<Item>* search(const Item&);
     node<Item>* search(const string name);
+    int getNumberOfItems(){return numberOfItemsInIventory;}
     int quantityOfItem(const string name);
     double salesPriceOfItem(const string name);
     void deleteFromInventory(const Item&);

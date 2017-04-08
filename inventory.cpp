@@ -1,5 +1,5 @@
 #include "inventory.h"
-
+#include <QDebug>
 using namespace std;
 
 Inventory::Inventory()
@@ -9,8 +9,21 @@ Inventory::Inventory()
 
 void Inventory::addToInventory(const Item& newItem)
 {
-    inventory.InsertHead(newItem);
-    inventory.sort();
+    qDebug() << "searching for item";
+    node<Item>* found = search(newItem.getItemName());
+    if(found)
+    {
+        qDebug() << "item found";
+        int quantity = found->item.getItemQuantity() + newItem.getItemQuantity();
+        found->item.setItemQuantity(quantity);
+    }
+    else
+    {
+        inventory.InsertHead(newItem);
+        numberOfItemsInIventory += 1;
+        qDebug() << "item added";
+        inventory.sort();
+    }
 }
 
 node<Item>* Inventory::search(const Item& itemComp)

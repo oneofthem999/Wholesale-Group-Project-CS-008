@@ -51,8 +51,6 @@ double memberPurchase::totalPurchaseCostOnDate(string date)
     return total;
 }
 
-List<purchase>& memberPurchase::getPurchases() { return purchases; }
-
 node<purchase>* memberPurchase::search(Item& itemComp)
 {
     node<purchase> *temp = purchases.begin();

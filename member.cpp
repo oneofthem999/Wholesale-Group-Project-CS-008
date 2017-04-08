@@ -199,22 +199,38 @@ void memberList::deleteMember(string firstName, string lastName)
 
 void memberList::deleteMember(string id)
 {
-    for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    node<member>* temp = search(id);
+     if (temp != allMembers.begin())
+        allMembers.DeleteNode(temp);
+    else if (temp == allMembers.begin())
+        allMembers.DeleteHead();
+     else
+         qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
+}
+
+bool memberList::editMember(member &updated, std::string first, std::string last, std::string id, std::string type, std::string exp)
+{
+    node<member>* edit = search(updated.getID());
+    if(!first.empty())
+        edit->item.setName(first, edit->item.getLastName());
+    if(!last.empty())
+        edit->item.setName(edit->item.getFirstName(), last);
+    if(!id.empty())
     {
-        if (temp->item.getID() == id)
-        {
-            if (temp != allMembers.begin())
-                allMembers.DeleteNode(temp);
-            else
-                allMembers.DeleteHead();
-        }
+        if(search(id) == NULL)
+            edit->item.setMembershipNumber(id);
     }
+    if(!type.empty())
+        edit->item.setMembershipType(type);
+    if(!exp.empty())
+        edit->item.setExpirationDate(exp);
 }
 
 void memberList::addPurchases(node<member>* mem, std::string date, Item& item)
 {
     mem->item.enterPurchase(date, item);
     allPurchases.insertMemberPurchases(*mem->item.getMemberPurchase());
+    inventory.addToInventory(item);
     grandTotal += item.getTotal();
 }
 
@@ -237,25 +253,17 @@ memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastNa
         if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
             return temp->item.getMemberPurchase();
     }
-    cout << "There is no member named " << firstName << " " << lastName << " stored in program." << endl;
+    qDebug() << "There is no member named " << QString::fromStdString(firstName) << " " << QString::fromStdString(lastName) << " stored in program." << endl;
     return NULL;
 }
 
 memberPurchase* memberList::memberPurchaseSearch(string id)
 {
-    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
-    {
-        if (temp->item.getID() == id)
-            return temp->item.getMemberPurchase();
-    }
-    cout << "There is no member with ID number " << id << " stored in program." << endl;
+    node<member> *temp = search(id);
+    if (temp != NULL)
+        return temp->item.getMemberPurchase();
+    qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
     return NULL;
-}
-
-bool memberList::editMemberName(member &updated, std::string first, std::string last)
-{
-    node<member>* edited = search(updated.getID());
-    return edited->item.setName(first, last);
 }
 
 bool memberList::readMemberFile(std::string filename)

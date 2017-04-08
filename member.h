@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include "purchase.h"
+#include "inventory.h"
 
 const double REBATE_RATE = 0.05;
 const double BASIC_DUES = 60.00;
@@ -64,26 +65,31 @@ class memberList
 {
     friend class member;
     public:
+        // constructor
         memberList();
+        // mutators
         void addMember(member mem);
         void deleteMember(string firstName, string LastName);
         void deleteMember(string id);
+        bool editMember(member &updated, std::string first="", std::string last="", std::string id="", std::string type="", std::string exp="");
         void addPurchases(node<member>* mem, std::string date, Item &item);
+        bool readMemberFile(std::string filename);
+        bool readSalesFile(std::string filename);
+        // accessors
         node<member>* search(string id);
         memberPurchase* memberPurchaseSearch(string firstName, string LastName);
         memberPurchase* memberPurchaseSearch(string id);
-        bool editMemberName(member &updated, std::string first, std::string last);
-        bool readMemberFile(std::string filename);
-        bool readSalesFile(std::string filename);
-        purchaseHistory& getAllPurchases() {return allPurchases;}
         List<member>& getMembers() {return allMembers;}
-        double getGrandTotal() {return grandTotal;}
-        int size() {return numberOfMembers;}
+        purchaseHistory& getAllPurchases() {return allPurchases;}
+        Inventory& getInventory() {return inventory;}
+        double getGrandTotal() const {return grandTotal;}
+        int size() const {return numberOfMembers;}
         friend ostream& operator<<(ostream& out, memberList& x);
 
     private:
         List<member> allMembers;
         purchaseHistory allPurchases;
+        Inventory inventory;
         double grandTotal;
         int numberOfMembers;
 };

@@ -1,4 +1,4 @@
-#include "Item.h"
+#include "item.h"
 
 using namespace std;
 
@@ -7,18 +7,6 @@ Item::Item(string name, double price, int quantity, double sTotal, double taxes,
 {
     setTotal();
 }
-
-std::string Item::getItemName() { return itemName; }
-
-double Item::getItemPrice() { return itemPrice; }
-
-int Item::getItemQuantity() { return itemQuantity; }
-
-double Item::getSubtotal() { return subtotal; }
-
-double Item::getTax() { return tax; }
-
-double Item::getTotal() {return total; }
 
 void Item::setItemName(std::string name) { itemName = name; }
 
