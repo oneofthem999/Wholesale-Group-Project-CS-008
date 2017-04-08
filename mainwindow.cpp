@@ -1,27 +1,74 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dialog.h"
-#include <Qstring>
-#include <iostream>
-#include<fstream>
+#include "member.h"
+#include <QDebug>
 
-using namespace std;
-
-QStringList hLabels;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->tableWidget->setRowCount(10);
-    ui->tableWidget->setColumnCount(4);
+    QRect rec = QApplication::desktop()->screenGeometry();
+    this->show();
 
-    hLabels << "Member Name" <<"Member ID"<<"Membership Level"<<"Total " ;
-    ui->tableWidget->setHorizontalHeaderLabels(hLabels);
+    table = ui->tabWidget->widget(0)->findChild<QTableWidget*>();
+    getMemberInfo("shoppers.txt");
+    qDebug() << "Number of members:" << members.size();
+    table->setRowCount(members.size());
+    table->setColumnCount(4);
 
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    QStringList hLabels;
+    hLabels << "Member Name"<<"Member ID"<<"Membership Level"<<"Expiration Date";
+    table->setHorizontalHeaderLabels(hLabels);
+    table->setColumnWidth(0, 175);
+    table->setColumnWidth(1, 100);
+    table->setColumnWidth(2, 110);
+    table->horizontalHeader()->setStretchLastSection(true);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
 
+    table1 = ui->tabWidget->widget(1)->findChild<QTableWidget*>();
+    getSalesInfo("day1.txt");
+    getSalesInfo("day2.txt");
+    getSalesInfo("day3.txt");
+    getSalesInfo("day4.txt");
+    getSalesInfo("day5.txt");
+
+    qDebug() << "Number of purchases:" << members.getAllPurchases().size();
+    qDebug().nospace() << "Grand total: $" << members.getGrandTotal();
+    table1->setRowCount(members.getAllPurchases().size());
+    table1->setColumnCount(5);
+    QStringList hLabels1;
+    hLabels1 << "Transaction Date"<<"Member ID"<<"Item Name"<<"Price"<<"Quantity";
+    table1->setHorizontalHeaderLabels(hLabels1);
+    table1->setColumnWidth(0, 100);
+    table1->setColumnWidth(1, 70);
+    table1->setColumnWidth(2, 200);
+    table1->setColumnWidth(3, 80);
+    table1->setColumnWidth(4, 50);
+    table1->horizontalHeader()->setStretchLastSection(true);
+    table1->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table1->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    table2 = ui->tabWidget->widget(2)->findChild<QTableWidget*>();
+    qDebug() << "Number of items sold: " << members.getInventory().getNumberOfItems();
+    table2->setRowCount(members.getInventory().getNumberOfItems());
+    table2->setColumnCount(3);
+    QStringList labels;
+    labels << "Item Name" << "Item Price" << "Total Quantity Sold";
+    table2->setHorizontalHeaderLabels(labels);
+    table2->setColumnWidth(0, 300);
+    table2->setColumnWidth(1, 100);
+    table2->setColumnWidth(2, 50);
+    table2->horizontalHeader()->setStretchLastSection(true);
+    table2->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table2->setSelectionMode(QAbstractItemView::SingleSelection);
+
+
+    this->setGeometry(rec.width()/2-400, rec.height()/2-300, 800, 500);
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(give()));
+    connect(ui->pushButton, SIGNAL(clicked(bool)),this,SLOT(profile()));
+    connect(ui->pushButton_4, SIGNAL(clicked(bool)),this,SLOT(remove()));
 
 }
 
@@ -30,217 +77,143 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-MainWindow:: getInfo(string fileName)
+void MainWindow::getMemberInfo(std::string filename)
 {
-    ifstream file(fileName.c_str());
-    string grab;
-    string temp(" ");
-    QString read;
-    QString again;
-
-    date.clear();
-    memberID.clear();
-    item.clear();
-    price.clear();
-
-    int line = 0;
-    int npos = 0;
-    string look;
-
-    while(getline(file,grab))
-    {
-        if(line%4 == 0)
-        {
-            read = QString::fromStdString(grab);
-            date.push_back(read);
-
-        }
-
-        if(line%4 == 1)
-        {
-            read = QString::fromStdString(grab);
-            memberID.push_back(read);
-
-        }
-
-        if(line%4 == 2)
-        {
-            read = QString::fromStdString(grab);
-            item.push_back(read);
-
-        }
-
-        if(line%4 == 3)
-        {
-            //look = grab.substr(4,(grab.length()-1));
-            look = grab;
-            read = QString::fromStdString(grab);
-            price.push_back(read);
-
-
-
-            again = QString::fromStdString(look);
-            quantity.push_back(again);
-
-
-
-
-         }
-
-        ++line;
-    }
-
-
+    members.readMemberFile(filename);
 }
 
-MainWindow::display()
+void MainWindow::getSalesInfo(std::string filename)
 {
-    for(int i = 0; i < memberID.size();++i)
-    {
-        if(memberID[i] == QString::fromStdString("12345"))
+    members.readSalesFile(filename);
+}
+
+void MainWindow::display()
+{
+    if(ui->tabWidget->currentIndex() == 0){
+        node<member>* cursor = members.getMembers().begin();
+        int row = 0;
+        while(cursor != NULL)
         {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Sally Shopper"));
-            ui->tableWidget->setItem(i,2, new QTableWidgetItem("Basic"));
-
+            table->setItem(row,0, new QTableWidgetItem(QString::fromStdString(cursor->item.getFullName())));
+            table->setItem(row,1, new QTableWidgetItem(QString::fromStdString(cursor->item.getID())));
+            table->setItem(row,2, new QTableWidgetItem(QString::fromStdString(cursor->item.getMembershipType())));
+            table->setItem(row,3, new QTableWidgetItem(QString::fromStdString(cursor->item.getExpirationDate())));
+            for(int i = 0; i < 4; ++i)
+            {
+                table->item(row,i)->setFlags((table->item(row,i)->flags() ^ Qt::ItemIsEditable));
+                table->item(row,i)->setTextAlignment(Qt::AlignCenter);
+            }
+            cursor = cursor->next;
+            ++row;
         }
-        if(memberID[i] == QString::fromStdString("67899"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Fred Frugal"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Basic"));
-        }
-
-        if(memberID[i] == QString::fromStdString("12899"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Betty Buysalot"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Prefered"));
-
-        }
-        if(memberID[i] == QString::fromStdString("88888"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Larry Largefamily"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Basic"));
-
-        }
-        if(memberID[i] == QString::fromStdString("35647"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Linda Livesalone"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Basic"));
-
-        }
-        if(memberID[i] == QString::fromStdString("31311"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Sam Single"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Preferred"));
-
-        }
-
-        if(memberID[i] == QString::fromStdString("12121"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Kathy Havealotsofkids"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Basic"));
-
-        }
-
-        if(memberID[i] == QString::fromStdString("77777"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Vern Video"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Preffered"));
-
-        }
-
-        if(memberID[i] == QString::fromStdString("16161"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Benjamin Business"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Basic"));
-
-        }
-
-        if(memberID[i] == QString::fromStdString("61616"))
-        {
-            ui->tableWidget->setItem(i,0, new QTableWidgetItem("Sam Saddleback"));
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem("Basic"));
-
-        }
-
-
-        ui->tableWidget->setItem(i,1, new QTableWidgetItem(memberID[i]));
-
-        if(ui->tabWidget->currentIndex() != 0)
-        {
-            ui->tableWidget->setItem(i,3, new QTableWidgetItem(item[i]));
-            ui->tableWidget->setItem(i,4, new QTableWidgetItem(price[i]));
-            //ui->tableWidget->setItem(1,5, new QTableWidgetItem(quantity[i]));
-        }
-        else
-        ui->tableWidget->setItem(i,3, new QTableWidgetItem(" "));
-
-
     }
-  //ui->tableWidget->setRowCount(memberID.size());
+    else if(ui->tabWidget->currentIndex() == 1){
+        node<memberPurchase>* memberPurchases = members.getAllPurchases().getTotalPurchases().begin();
+        node<purchase>* cursor1 = memberPurchases->item.getPurchases().begin();
+        int row1 = 0;
+        while(memberPurchases != NULL){
+            while(cursor1 != NULL)
+            {
+                table1->setItem(row1,0, new QTableWidgetItem(QString::fromStdString(cursor1->item.transactionDate)));
+                table1->setItem(row1,1, new QTableWidgetItem(QString::fromStdString(memberPurchases->item.getMemberID())));
+                table1->setItem(row1,2, new QTableWidgetItem(QString::fromStdString(cursor1->item.item.getItemName())));
+                table1->setItem(row1,3, new QTableWidgetItem(QString::number(cursor1->item.item.getItemPrice(), 'f', 2)));
+                table1->setItem(row1,4, new QTableWidgetItem(QString::number(cursor1->item.item.getItemQuantity())));
+                for(int i = 0; i < 5; ++i)
+                {
+                    table1->item(row1,i)->setFlags((table1->item(row1,i)->flags() ^ Qt::ItemIsEditable));
+                    table1->item(row1,i)->setTextAlignment(Qt::AlignCenter);
+                }
+                cursor1 = cursor1->next;
+                ++row1;
+            }
+            memberPurchases = memberPurchases->next;
+            if((memberPurchases))
+                cursor1 = memberPurchases->item.getPurchases().begin();
+        }
+    }
+
+    else if(ui->tabWidget->currentIndex() == 2){
+        node<Item>* item = members.getInventory().getInventory().begin();
+        int row = 0;
+        while(item != NULL){
+            table2->setItem(row,0, new QTableWidgetItem(QString::fromStdString(item->item.getItemName())));
+            table2->setItem(row,1, new QTableWidgetItem(QString::number(item->item.getItemPrice(), 'f', 2)));
+            table2->setItem(row,2, new QTableWidgetItem(QString::number(item->item.getItemQuantity())));
+            for(int i = 0; i < 3; ++i)
+            {
+                table2->item(row,i)->setFlags((table2->item(row,i)->flags() ^ Qt::ItemIsEditable));
+                table2->item(row,i)->setTextAlignment(Qt::AlignCenter);
+            }
+            table2->item(row,0)->setTextAlignment(Qt::AlignLeft);
+
+            item = item->next;
+            ++row;
+        }
+    }
+}
+
+void MainWindow::profile()
+{
+    int page;
+    page = ui->tabWidget->currentIndex();
+    if(page == 0)
+    {
+        int selectedRow = table->currentRow();
+        QString id = table->item(selectedRow, 1)->text();
+        node<member>* mem = members.search(id.toStdString());
+        qDebug().nospace() << fixed << qSetRealNumberPrecision(2)
+            << "Rebate: $" << mem->item.getRebateAmount()
+            << "  Upgrade/downgrade: " << mem->item.shouldUpgradeOrDowngrade();
+    }
+}
+
+void MainWindow::remove()
+{
+    int page;
+    page = ui->tabWidget->currentIndex();
+    if(page == 0)
+    {
+        int selectedRow = table->currentRow();
+        QString id = table->item(selectedRow, 1)->text();
+        members.deleteMember(id.toStdString());
+        table->removeRow(selectedRow);
+        table->setRowCount(members.size());
+        display();
+    }
 }
 
 void MainWindow::give()
-{   int page;
+{
+    int page;
     page = ui->tabWidget->currentIndex();
 
-    if(page != 0)
-    {
+//    if(page != 0)
+//    {
+//        ui->tableWidget->setRowCount(12);
+//        ui->tableWidget->setColumnCount(5);
+//        ui->tableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("Item Bought"));
+//        ui->tableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Cost"));
+//        //ui->tableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem("Quantity"));
+//    }
+//    else
+//    {
+//        ui->tableWidget->setColumnCount(4);
+//        ui->tableWidget->setRowCount(10);
+//        ui->tableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("Total"));
+//        getMemberInfo("shoppers.txt");
+//    }
 
-        ui->pushButton->hide();
-        ui->pushButton_3->hide();
-        ui->tableWidget->setRowCount(12);
-        ui->tableWidget->setColumnCount(5);
-        ui->tableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("Item Bought"));
-        ui->tableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Cost/Quantity"));
-        //ui->tableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem("Quantity"));
-    }
-    else
-    {
-        ui->pushButton->show();
-        ui->pushButton_3->show();
-        ui->tableWidget->setColumnCount(4);
-        ui->tableWidget->setRowCount(10);
-        ui->tableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("Total"));
-        getInfo("shoppers.txt");
-    }
-
-    if(page == 1)
-    getInfo("day1.txt");
-    if(page == 2)
-    getInfo("day2.txt");
-    if(page == 3)
-    getInfo("day3.txt");
-    if(page == 4)
-    getInfo("day4.txt");
-    if(page == 5)
-    getInfo("day5.txt");
-
-
+//    if(page == 1){
+//    }
+//    if(page == 2)
+//        getSalesInfo("day2.txt");
+//    if(page == 3)
+//        getSalesInfo("day3.txt");
+//    if(page == 4)
+//        getSalesInfo("day4.txt");
+//    if(page == 5)
+//        getSalesInfo("day5.txt");
 
     display();
-}
-
-void MainWindow::on_pushButton_3_clicked()
-{
-    Dialog win;
-    win.setModal(true);
-    win.exec();
-
-    if(win.firstName.length() != 0)
-    {
-        ui->tableWidget->setRowCount(row);
-        ui->tableWidget->setItem(row-1,0,new QTableWidgetItem(win.firstName+" "+win.lastName));
-        ui->tableWidget->setItem(row-1,1,new QTableWidgetItem("78452"));
-
-        if(win.basic)
-            ui->tableWidget->setItem(row-1,2,new QTableWidgetItem("Basic"));
-        if(win.pref)
-            ui->tableWidget->setItem(row-1,2,new QTableWidgetItem("Preffered"));
-
-        ++row;
-    }
-
-    win.firstName.clear();
-
-
 }
