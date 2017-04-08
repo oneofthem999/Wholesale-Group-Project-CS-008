@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = P1-WholesaleClub
+TARGET = WholesaleClub
 TEMPLATE = app
 
 
@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     member.cpp \
     purchase.cpp \
     inventory.cpp \
-    item.cpp
+    item.cpp \
+    dialog.cpp
 
 HEADERS  += mainwindow.h \
     member.h \
@@ -25,6 +26,8 @@ HEADERS  += mainwindow.h \
     thenode.h \
     purchase.h \
     inventory.h \
-    item.h
+    item.h \
+    dialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialog.ui
