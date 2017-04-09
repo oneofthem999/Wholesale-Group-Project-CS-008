@@ -246,6 +246,19 @@ node<member>* memberList::search(std::string id)
     return NULL;
 }
 
+node<member>* memberList::search(std::string firstName, std::string lastName)
+{
+    node<member>* temp = allMembers.begin();
+    while(temp != NULL)
+    {
+        if (temp->item.getFirstName() == firstName && temp->item.getLastName() == lastName)
+            return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+
 memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
 {
     for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)

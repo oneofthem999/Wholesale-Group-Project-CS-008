@@ -77,6 +77,7 @@ class memberList
         bool readSalesFile(std::string filename);
         // accessors
         node<member>* search(string id);
+        node<member>* search(string firstName, string lastName);
         memberPurchase* memberPurchaseSearch(string firstName, string LastName);
         memberPurchase* memberPurchaseSearch(string id);
         List<member>& getMembers() {return allMembers;}
