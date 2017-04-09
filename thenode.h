@@ -79,6 +79,9 @@ node<ItemType>* insertAfter(const ItemType &insertMe, node<ItemType>* afterMe);
 template <class ItemType>
 node<ItemType>* insertBefore(node<ItemType>* &head, const ItemType &insertMe, node<ItemType>* beforeMe);
 
+template <class ItemType>
+node<ItemType>* insert(node<ItemType>* &head, const ItemType &insertMe);
+
 /*************************************************
 * deleteNode:
 *  delete a node in a linked list
@@ -207,6 +210,7 @@ node<ItemType>* insertAfter(const ItemType& insertMe, node<ItemType>* afterMe) {
     afterMe->next = newNode;
     return newNode;
 }
+
 template <class ItemType>
 node<ItemType>* insertBefore(node<ItemType>* &head, const ItemType &insertMe, node<ItemType>* beforeMe) {
     node<ItemType>* after;
@@ -218,6 +222,17 @@ node<ItemType>* insertBefore(node<ItemType>* &head, const ItemType &insertMe, no
         after = previous(head, beforeMe);
         return insertAfter(insertMe, after);
     }
+}
+
+template <class ItemType>
+node<ItemType>* insert(node<ItemType>* &head, const ItemType &insertMe){
+    node<ItemType>* walker=head;
+    while(walker->next){
+        walker=walker->next;
+    }
+    walker->next=new node<ItemType>;
+    walker->next->item=insertMe;
+    walker->next->next=NULL;
 }
 
 template <class ItemType>

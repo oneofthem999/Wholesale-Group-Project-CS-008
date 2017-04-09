@@ -1,8 +1,11 @@
 #include "member.h"
+#include <iostream>
 #include <fstream>
 #include <cctype>
 #include <sstream>
 #include <QDebug>
+
+using namespace std;
 
 member::member()
 {
@@ -268,8 +271,9 @@ memberPurchase* memberList::memberPurchaseSearch(string id)
 
 bool memberList::readMemberFile(std::string filename)
 {
+
     fstream file;
-    file.open(filename, ios::in);
+    file.open(filename.c_str(), ios::in);
     string name;
     if(file.is_open()){
         while(getline(file,name))
@@ -304,7 +308,7 @@ bool memberList::readMemberFile(std::string filename)
 bool memberList::readSalesFile(std::string filename)
 {
     fstream file;
-    file.open(filename, ios::in);
+    file.open(filename.c_str(), ios_base::in);
     string date;
     if(file.is_open()){
         while(getline(file, date))

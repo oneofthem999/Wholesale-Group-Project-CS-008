@@ -40,7 +40,6 @@
      <attribute name="title">
       <string>Members</string>
      </attribute>
-     <zorder>tableWidget</zorder>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -111,7 +110,7 @@
      <x>0</x>
      <y>0</y>
      <width>809</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuName_h_Not_Found">

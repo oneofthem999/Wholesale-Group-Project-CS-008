@@ -5,10 +5,12 @@ using namespace std;
 Inventory::Inventory()
 {
     numberOfItemsInIventory = 0;
+    totalValue = 0;
 }
 
 void Inventory::addToInventory(const Item& newItem)
 {
+    totalValue += newItem.getItemPrice();
     qDebug() << "searching for item";
     node<Item>* found = search(newItem.getItemName());
     if(found)
@@ -24,6 +26,10 @@ void Inventory::addToInventory(const Item& newItem)
         qDebug() << "item added";
         inventory.sort();
     }
+}
+
+double Inventory::getTotalValue(){
+    return totalValue;
 }
 
 node<Item>* Inventory::search(const Item& itemComp)

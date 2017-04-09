@@ -73,6 +73,27 @@ node<purchase>* memberPurchase::search(std::string transactionDateComp)
     return NULL;
 }
 
+node<purchase>* memberPurchase::search(string transactionDate, int& pos, bool& finish){
+    node<purchase> *purchaseWalker = purchases.begin();
+    for(int i=0; i<pos; i++){
+        if(purchaseWalker->next)
+            purchaseWalker=purchaseWalker->next;
+        else
+            finish=true;
+    }//point to (pos)th
+
+    while(purchaseWalker){//is not null
+        pos++;
+        if(purchaseWalker->item.transactionDate==transactionDate)
+            return purchaseWalker;
+        else{
+            purchaseWalker=purchaseWalker->next;
+        }
+    }
+    finish=true;
+    return NULL;
+}
+
 ostream& operator<<(ostream& out, memberPurchase& member)
 {
     for (node<purchase>* temp = member.getPurchases().begin(); temp != NULL; temp = temp->next)
@@ -116,6 +137,41 @@ node<memberPurchase>* purchaseHistory::search(memberPurchase& target)
         temp = temp->next;
     }
     return NULL;
+}
+
+node<purchase>* purchaseHistory::searchByDate(string date, int& memberPos, int& purchasePos, bool& finish){
+    node<purchase>* result;
+    node<memberPurchase>* memberPurchaseWalker = totalPurchases.begin();
+    for(int i=0;i<memberPos;i++){
+        if(memberPurchaseWalker->next)
+            memberPurchaseWalker=memberPurchaseWalker->next;
+        else
+            finish=true;    //if there is no next, the search finished
+    }
+    while(memberPurchaseWalker){
+        bool searchTheMemberPurchaseCompletely = false;
+        while(!searchTheMemberPurchaseCompletely){
+            result=memberPurchaseWalker->item.search(date,purchasePos,searchTheMemberPurchaseCompletely);
+            if(result)
+                return result;
+        }
+        memberPos++;
+        memberPurchaseWalker=memberPurchaseWalker->next;
+        purchasePos=0;
+    }
+    finish=true;
+    return NULL;
+}
+
+string purchaseHistory::getID(int pos){
+    node<memberPurchase>* memberPurchaseWalker = totalPurchases.begin();
+    for(int i=0;i<pos;i++){
+        if(memberPurchaseWalker->next)
+            memberPurchaseWalker=memberPurchaseWalker->next;
+        else
+            return "-1";   //if there is no next, return -1
+    }//point to (pos)th
+    return memberPurchaseWalker->item.getMemberID();
 }
 
 void purchaseHistory::insertMemberPurchases(memberPurchase& newPurchases)

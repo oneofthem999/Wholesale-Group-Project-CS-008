@@ -23,14 +23,23 @@ public:
     void changeID(std::string id);
     // accessors
     node<purchase>* search(Item& item);
-    node<purchase>* search(std::string transactionDate);
+
+    /*****************************************************
+     * search the purchase record matches a specific date
+     * if finds the match record, return the pointer and the position of the record
+     * and search again with starting at the last position
+     * if the it goes to the end, bool finish will be true to tell the upper level
+     * that there is no more match record.
+     ****************************************************/
+    node<purchase>* search(string transactionDate, int& pos, bool& finish);
+    node<purchase>* search(std::string transactionDate);//search by date
     double totalPurchaseCostOnDate(std::string transactionDate);
     double totalPurchaseCost();
     List<purchase>& getPurchases() {return purchases;}
     std::string getMemberID(){ return memberID; }
     int size() const { return numberOfPurchases; }
     bool operator>(const memberPurchase& RHS){return memberID > RHS.memberID;}
-\
+
     friend ostream& operator<<(ostream &out, List<purchase>& purch);
 
 private:
@@ -50,6 +59,24 @@ public:
     // accessors
     bool isInList(memberPurchase& mem);
     node<memberPurchase>* search(memberPurchase& target);
+
+    /********************************************************************
+     * node<purchase>* searchByDate(string date, int& member, int& purchase, bool& finish);
+     * search the purchase record matches a specific date
+     * if finds the match record, return the pointer and the position of the record
+     * and search again with starting at the last position
+     * if the it goes to the end, bool finish will be true to tell the upper level
+     * that there is no more match record.
+     ******************************************************************/
+    node<purchase>* searchByDate(string date, int& memberPos, int& purchasePos, bool& finish);    //added
+
+    /*******************************************************************
+     * string getID(int pos);
+     * return the ID of the (pos)th member
+     * if pos is not valid, return "-1"
+     * *pos start with 0( the first index is 0)
+     *****************************************************************/
+    string getID(int pos);
     List<memberPurchase>& getTotalPurchases(){return totalPurchases;}
     int size() const { return numberOfTotalPurchases; }
 
