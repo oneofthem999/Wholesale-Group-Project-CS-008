@@ -110,6 +110,10 @@ void member::printPurchaseHistory(){
     personalPurchases.print();
 }
 
+node<purchase>* member::searchPurchase(string transactionDate, int& pos, bool& finish){
+    return personalPurchases.search(transactionDate,pos,finish);
+}
+
 //bool member::operator<(const member& RHS) { return getFirstName() < RHS.getFirstName(); }
 //bool member::operator<=(const member& RHS) { return getFirstName() <= RHS.getFirstName(); }
 //bool member::operator>(const member& RHS) { return getFirstName() > RHS.getFirstName(); }
@@ -226,25 +230,43 @@ node<member>* memberList::search(string lastName,string firstName)
     return NULL;
 }
 
-//memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
-//{
-//    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
-//    {
-//        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
-//            return temp->item.getMemberPurchase();
-//    }
-//    //qDebug() << "There is no member named " << QString::fromStdString(firstName) << " " << QString::fromStdString(lastName) << " stored in program." << endl;
-//    return NULL;
-//}
+node<purchase>* memberList::searchPurchaseByDate(string date, int& memPos, int& purPos, bool& finish){
+    node<purchase>* result;
+    node<member>* memberWalker = allMembers.begin();
+    //move to memPos
+    for(int i=0;i<memPos;i++){
+        if(memberWalker->next)
+            memberWalker=memberWalker->next;
+        else
+            finish=true;    //if there is no next, the search finished
+    }
+    //
+    while(memberWalker){
+        bool searchTheMemberPurchaseCompletely = false;
+        //search all results in single memberPurchase
+        while(!searchTheMemberPurchaseCompletely){
+            result=memberWalker->item.searchPurchase(date,purPos,searchTheMemberPurchaseCompletely);
+            if(result)
+                return result;
+        }
+        memPos++;
+        memberWalker=memberWalker->next;
+        purPos=0;
+    }
+    finish=true;
+    return NULL;
+}
 
-//memberPurchase* memberList::memberPurchaseSearch(string id)
-//{
-//    node<member> *temp = search(id);
-//    if (temp != NULL)
-//        return temp->item.getMemberPurchase();
-//    //qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
-//    return NULL;
-//}
+string memberList::getID(int pos){
+    node<member>* memberWalker = allMembers.begin();
+    for(int i=0;i<pos;i++){
+        if(memberWalker->next)
+            memberWalker=memberWalker->next;
+        else
+            return "-1";   //if there is no next, return -1
+    }//point to (pos)th
+    return memberWalker->item.getID();
+}
 
 void memberList::print(){
     node<member>* walker=allMembers.begin();
@@ -253,6 +275,16 @@ void memberList::print(){
             <<walker->item.getID()<<endl;
         walker=walker->next;
     }
+}
+
+void memberList::printAllPurchase(){
+    node<member>* temp=allMembers.begin();
+    while(temp){
+        cout<<temp->item;
+        temp->item.printPurchaseHistory();
+        temp=temp->next;
+    }
+
 }
 
 ostream& operator<<(ostream& out, memberList& x)

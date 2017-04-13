@@ -25,6 +25,7 @@ class member
         bool setExpirationDate(string date);
         void enterPurchase(string date, Product &item);
         void setAmountSpent(double amountToAdd);
+
         void setRebateAmount();
 
         // CONSTANT MEMBER FUNCTIONS
@@ -36,7 +37,9 @@ class member
         std::string getExpirationDate() const {return expirationDate;}
         double getAmountSpent() const         {return totalAmountSpent;}
         double getRebateAmount() const        {return rebateAmount;}
-        //memberPurchase getMemberPurchase()   { return memberPurchases; }
+
+        node<purchase>* searchPurchase(string transactionDate, int& pos, bool& finish);
+
         bool shouldUpgradeOrDowngrade() const;
         void printPurchaseHistory();
         bool operator>(const member& RHS);
@@ -75,12 +78,30 @@ class memberList    //default sort by ID with increasing order
         // accessors
         node<member>* search(string id);
         node<member>* search(string lastName,string firstName);
-        //memberPurchase* memberPurchaseSearch(string firstName, string LastName);
-        //memberPurchase* memberPurchaseSearch(string id);
+
+        /********************************************************************
+         * node<purchase>* searchPurchaseByDate(string date, int& memPos, int& purPos, bool& finish);
+         * search the purchase record matches a specific date
+         * if finds the match record, return the pointer and the position of the record
+         * and search again with starting at the last position
+         * if the it goes to the end, bool finish will be true to tell the upper level
+         * that there is no more match record.
+         ******************************************************************/
+        node<purchase>* searchPurchaseByDate(string date, int& memPos, int& purPos, bool& finish);
+
+        /*******************************************************************
+         * string getID(int pos);
+         * return the ID of the (pos)th member
+         * if pos is not valid, return "-1"
+         * *pos start with 0( the first index is 0)
+         *****************************************************************/
+        string getID(int pos);
+
         List<member>& getMembers() {return allMembers;}
         double getGrandTotal() const {return grandTotal;}
         int size() const {return numberOfMembers;}
         void print();
+        void printAllPurchase();
         friend ostream& operator<<(ostream& out, memberList& x);
 
     private:

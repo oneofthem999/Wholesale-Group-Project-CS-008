@@ -4,6 +4,7 @@
 #include "inventory.h"
 #include "testfile.cpp"
 #include "member.h"
+#include "dailyreport.h"
 
 using namespace std;
 
@@ -83,6 +84,11 @@ void theFormalProgram(){
         file.close();
     }
 
+    //1. daily report
+    cout<<"daily report for 03.05.2013"<<endl;
+    dailyReport Mar15(totalMember,"03/05/2013");
+    cout<<Mar15.getReport();
+    cout<<endl<<endl<<endl;
     //2. enter ID or name, get member purchase history
     cout<<"search ID 88888: "<<endl;
     node<member>* target;
@@ -103,7 +109,8 @@ void theFormalProgram(){
 
     //3. prints the total purchases by all the members sorted by membership number.
     //   with a grand total of the purchases.
-    totalMember.print();
+    cout<<endl<<"total purchase by all members sorted by ID"<<endl;
+    totalMember.printAllPurchase();
 
     cout<<"grandtotal = $"<<totalMember.getGrandTotal()<<endl;
 

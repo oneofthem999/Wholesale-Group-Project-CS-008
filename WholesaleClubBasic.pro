@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     inventory.cpp \
     testfile.cpp \
     purchase.cpp \
-    member.cpp
+    member.cpp \
+    dailyreport.cpp
 
 HEADERS += \
     thelist.h \
@@ -16,4 +17,5 @@ HEADERS += \
     product.h \
     inventory.h \
     purchase.h \
-    member.h
+    member.h \
+    dailyreport.h

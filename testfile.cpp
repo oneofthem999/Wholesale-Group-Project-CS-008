@@ -4,8 +4,8 @@
 
 void memberTEST(){
     //member test
-    cout<<"memberTEST"<<endl;
-    member peter("Peter","A","123","Basic","03/05/2013");
+    cout<<"*** memberTEST ***"<<endl;
+    member peter("Peter","A","123","Basic","03/05/1913");
     Product milk("1 gallon milk", 2.49, 13);
     peter.enterPurchase("03/05/2013",milk);
     cout<<peter<<endl;
@@ -14,15 +14,44 @@ void memberTEST(){
     member peter2=peter;
     cout<<peter2<<endl;
     peter2.printPurchaseHistory();
-
+    //search
+    cout<<"search on 03/05/2013"<<endl;
+    int pos=0;
+    bool f=false;
+    node<purchase>* result;
+    while(!f){
+        result = peter.searchPurchase("03/05/2013",pos,f);
+        if(result)
+            cout<<result->item;
+    }
     cout<<" *** memberTEST completed *** "<<endl;
 
-    memberList test;
+    Product car("car", 30000, 1);
+    Product apple("apple", 2, 20);
+
+    peter.enterPurchase("03/05/2013",car);
+    peter.enterPurchase("03/06/2013",apple);
+
+    cout<<" *** memberList TEST *** "<<endl;
     memberList aList;
-    member Mary("Mary", "B", "456","Preferred", "03/06/2013");
+    member Mary("Mary", "B", "456","Preferred", "03/06/1913");
+    Mary.enterPurchase("03/05/2013",apple);
     aList.addMember(peter);
     aList.addMember(Mary);
-    aList.print();
+    aList.printAllPurchase();
+
+    //search
+    cout<<"search purchases on 03/05/2013"<<endl;
+    int memP=0;
+    int PurP=0;
+    bool finish=false;
+    while(!finish){
+        node<purchase>* result;
+        result = aList.searchPurchaseByDate("03/05/2013",memP,PurP,finish);
+        if(result)
+            cout<<result->item;
+    }
+    cout<<" *** memberList TEST completed *** "<<endl;
 }
 
 void purchaseTEST(){
@@ -33,6 +62,19 @@ void purchaseTEST(){
     Product apple("apple", 4.9, 25);
     a.addPurchase("03/06/2013", apple);
     a.print();
+    Product car("car",30000,1);
+    a.addPurchase("03/05/2013",car);
+
+    //search on date 03/05/2013
+    cout<<"all the purchase on 03/05/2013"<<endl;
+    int pos=0;
+    bool finish = false;
+    node<purchase>* result;
+    while(!finish){
+        result=a.search("03/05/2013",pos,finish);
+        if(result)
+            cout<<result->item;
+    }
 }
 
 void productNinventoryTEST(){
