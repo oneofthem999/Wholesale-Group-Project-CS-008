@@ -1,65 +1,68 @@
 #include "inventory.h"
-#include <QDebug>
-using namespace std;
 
-Inventory::Inventory()
+inventory::inventory()
 {
     numberOfItemsInIventory = 0;
+    totalValue = 0;
 }
 
-void Inventory::addToInventory(const Item& newItem)
-{
-    qDebug() << "searching for item";
-    node<Item>* found = search(newItem.getItemName());
+void inventory::addToInventory(const Product &addme){
+    totalValue += addme.getPrice();
+    node<Product>* found = search(addme.getName());
     if(found)
     {
-        qDebug() << "item found";
-        int quantity = found->item.getItemQuantity() + newItem.getItemQuantity();
-        found->item.setItemQuantity(quantity);
+        int quantity = found->item.getQuantity() + addme.getQuantity();
+        found->item.setQuantity(quantity);
     }
     else
     {
-        inventory.InsertHead(newItem);
-        numberOfItemsInIventory += 1;
-        qDebug() << "item added";
-        inventory.sort();
+        productList.Insert(addme);
+        numberOfItemsInIventory++;
+        productList.sort();
     }
 }
 
-node<Item>* Inventory::search(const Item& itemComp)
-{
-    node<Item> *temp = inventory.begin();
+void inventory::addToInventory(string productName, double price,int quantity){
+    Product addme(productName,price,quantity);
+    addToInventory(addme);
+}
+
+void inventory::deleteFromInventory(const Product& deleteMe){
+    node<Product> *temp = search(deleteMe);
+    productList.DeleteNode(temp);
+}
+
+void inventory::deleteFromInventory(const string name){
+    node<Product> *temp = search(name);
+    productList.DeleteNode(temp);
+}
+
+node<Product>* inventory::search(const Product& searchMe){
+    node<Product> *temp = productList.begin();
     while (temp != NULL)
     {
-        if (temp->item == itemComp)
+        if (temp->item == searchMe)
             return temp;
         temp = temp->next;
     }
     return NULL;
 }
 
-node<Item>* Inventory::search(const string name)
-{
-    for (node<Item> *temp = inventory.begin(); temp != NULL; temp = temp->next)
+node<Product>* inventory::search(const string name){
+    for (node<Product> *temp = productList.begin(); temp != NULL; temp = temp->next)
     {
-        if (temp->item.getItemName() == name)
+        if (temp->item.getName() == name)
             return temp;
     }
     return NULL;
 }
 
-int Inventory::quantityOfItem(const string name) { return search(name)->item.getItemQuantity(); }
-
-double Inventory::salesPriceOfItem(const string name) { return search(name)->item.getItemPrice(); }
-
-void Inventory::deleteFromInventory(const Item& itemToDelete)
-{
-    node<Item> *temp = search(itemToDelete);
-
-    if (temp != inventory.begin())
-        inventory.DeleteNode(temp);
-    else
-        inventory.DeleteHead();
+void inventory::print(){
+    node<Product> *temp=productList.begin();
+    while(temp){
+        cout<<"name: "<<temp->item.getName()
+           <<" | "<<temp->item.getQuantity()<<endl;
+        temp=temp->next;
+    }
+    cout<<endl;
 }
-
-List<Item>& Inventory::getInventory() { return inventory; }
