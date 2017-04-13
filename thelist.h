@@ -24,6 +24,7 @@ public:
     void DeleteNode(node<ItemType>* deleteMe);
     void DeleteAll();
     void DeleteHead();
+    node<ItemType>* Search(const ItemType &key);
     node<ItemType>* At(int n);
     bool IsEmpty();
     void sort();
@@ -55,8 +56,6 @@ List<ItemType>::List(node<ItemType>* head)
 template <class ItemType>
 List<ItemType>::List(const List& other)
 {
-    if (headptr)
-        DeleteAll();
     headptr = copy(other.headptr);
 }
 
@@ -110,13 +109,21 @@ void List<ItemType>::DeleteHead()
 template <class ItemType>
 void List<ItemType>::DeleteNode(node<ItemType>* deleteMe)
 {
-    deleteNode(headptr, deleteMe);
+    if(deleteMe==headptr)
+        DeleteHead();
+    else
+        deleteNode(headptr, deleteMe);
 }
 
 template <class ItemType>
 void List<ItemType>::DeleteAll()
 {
     deleteAll(headptr);
+}
+
+template <class ItemType>
+node<ItemType>* List<ItemType>::Search(const ItemType &key){
+    return search(key,headptr);
 }
 
 template <class ItemType>
@@ -135,7 +142,7 @@ bool List<ItemType>::IsEmpty()
 }
 
 template <class ItemType>
-void List<ItemType>::sort()
+void List<ItemType>::sort()//incresing order
 {
     node<ItemType> *ptr = headptr;
     ItemType tempItem;

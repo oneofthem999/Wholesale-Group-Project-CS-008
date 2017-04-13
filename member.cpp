@@ -1,18 +1,13 @@
 #include "member.h"
-#include <fstream>
-#include <cctype>
-#include <sstream>
-#include <QDebug>
 
 member::member()
 {
     totalAmountSpent = 0;
     rebateAmount = 0;
-    memberPurchases = new memberPurchase();
 }
 
-member::member(std::string first, std::string last, std::string number,
-               std::string type, std::string date)
+member::member(string first, string last, string number,
+               string type, string date)
 {
     firstName = first;
     lastName = last;
@@ -21,44 +16,9 @@ member::member(std::string first, std::string last, std::string number,
     membershipType = type;
     totalAmountSpent = 0;
     rebateAmount = 0;
-    memberPurchases = new memberPurchase();
-    memberPurchases->changeID(membershipNumber);
 }
 
-member::member(const member& other)
-{
-    firstName = other.firstName;
-    lastName = other.lastName;
-    membershipNumber = other.membershipNumber;
-    membershipType = other.membershipType;
-    expirationDate = other.expirationDate;
-    memberPurchases = other.memberPurchases;
-    totalAmountSpent = other.totalAmountSpent;
-    rebateAmount = other.rebateAmount;
-}
-
-member& member::operator=(const member& other)
-{
-    if(this != &other)
-    {
-        firstName = other.firstName;
-        lastName = other.lastName;
-        membershipNumber = other.membershipNumber;
-        membershipType = other.membershipType;
-        expirationDate = other.expirationDate;
-        memberPurchases = other.memberPurchases;
-        totalAmountSpent = other.totalAmountSpent;
-        rebateAmount = other.rebateAmount;
-    }
-    return *this;
-}
-
-member::~member()
-{
-    memberPurchases = NULL;
-}
-
-bool member::setName(std::string first, std::string last)
+bool member::setName(string first, string last)
 {
     for(size_t i = 0; i < first.length() - 1; ++i)
     {
@@ -79,18 +39,17 @@ bool member::setName(std::string first, std::string last)
     return true;
 }
 
-bool member::setMembershipNumber(std::string number)
+bool member::setMembershipNumber(string number)
 {
     if(number.find_first_not_of("0123456789") == std::string::npos)
     {
         membershipNumber = number;
-        memberPurchases->changeID(number);
         return true;
     }
     return false;
 }
 
-bool member::setMembershipType(std::string type)
+bool member::setMembershipType(string type)
 {
     if(type == "Basic" || type == "Preferred")
     {
@@ -100,16 +59,16 @@ bool member::setMembershipType(std::string type)
     return false;
 }
 
-bool member::setExpirationDate(std::string date)
+bool member::setExpirationDate(string date)
 {
     // add error checking
     expirationDate = date;
     return true;
 }
 
-void member::enterPurchase(std::string date, Item& item)
+void member::enterPurchase(string date, Product& item)
 {
-    memberPurchases->addPurchase(date, item);
+    personalPurchases.addPurchase(date, item);
     setAmountSpent(item.getTotal());
 }
 
@@ -147,12 +106,23 @@ bool member::shouldUpgradeOrDowngrade() const
     return false;
 }
 
-bool member::operator<(const member& RHS) { return getFirstName() < RHS.getFirstName(); }
-bool member::operator<=(const member& RHS) { return getFirstName() <= RHS.getFirstName(); }
-bool member::operator>(const member& RHS) { return getFirstName() > RHS.getFirstName(); }
-bool member::operator>=(const member& RHS) { return getFirstName() >= RHS.getFirstName(); }
-bool member::operator==(const member& RHS) { return getFirstName() == RHS.getFirstName(); }
-bool member::operator!=(const member& RHS) { return getFirstName() != RHS.getFirstName(); }
+void member::printPurchaseHistory(){
+    personalPurchases.print();
+}
+
+//bool member::operator<(const member& RHS) { return getFirstName() < RHS.getFirstName(); }
+//bool member::operator<=(const member& RHS) { return getFirstName() <= RHS.getFirstName(); }
+//bool member::operator>(const member& RHS) { return getFirstName() > RHS.getFirstName(); }
+//bool member::operator>=(const member& RHS) { return getFirstName() >= RHS.getFirstName(); }
+//bool member::operator==(const member& RHS) { return getFirstName() == RHS.getFirstName(); }
+//bool member::operator!=(const member& RHS) { return getFirstName() != RHS.getFirstName(); }
+
+bool member::operator<(const member& RHS) { return getID() < RHS.getID(); }
+bool member::operator<=(const member& RHS) { return getID() <= RHS.getID(); }
+bool member::operator>(const member& RHS) { return getID() > RHS.getID(); }
+bool member::operator>=(const member& RHS) { return getID() >= RHS.getID(); }
+bool member::operator==(const member& RHS) { return getID() == RHS.getID(); }
+bool member::operator!=(const member& RHS) { return getID() != RHS.getID(); }
 
 ostream& operator<<(ostream& out, member& x)
 {
@@ -162,8 +132,6 @@ ostream& operator<<(ostream& out, member& x)
         << x.getExpirationDate() << "\n";
     return out;
 }
-
-
 
 memberList::memberList()
 {
@@ -175,10 +143,10 @@ void memberList::addMember(member mem)
 {
     if(search(mem.getID()) == NULL) // makes sure no member with duplicate ID is added
     {
-        allMembers.InsertHead(mem);
+        allMembers.Insert(mem);
         allMembers.sort();
-        if(!mem.getMemberPurchase()->getPurchases().IsEmpty())
-            allPurchases.insertMemberPurchases(*mem.getMemberPurchase());
+//        if(!mem.getMemberPurchase()->getPurchases().IsEmpty())
+//            allPurchases.insertMemberPurchases(*mem.getMemberPurchase());
         ++numberOfMembers;
     }
 }
@@ -204,8 +172,8 @@ void memberList::deleteMember(string id)
         allMembers.DeleteNode(temp);
     else if (temp == allMembers.begin())
         allMembers.DeleteHead();
-     else
-         qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
+     //else
+         //qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
 }
 
 bool memberList::editMember(member &updated, std::string first, std::string last, std::string id, std::string type, std::string exp)
@@ -226,15 +194,15 @@ bool memberList::editMember(member &updated, std::string first, std::string last
         edit->item.setExpirationDate(exp);
 }
 
-void memberList::addPurchases(node<member>* mem, std::string date, Item& item)
+void memberList::addPurchases(node<member>* mem, std::string date, Product& item)
 {
     mem->item.enterPurchase(date, item);
-    allPurchases.insertMemberPurchases(*mem->item.getMemberPurchase());
-    inventory.addToInventory(item);
+    //allPurchases.insertMemberPurchases(*mem->item.getMemberPurchase());
+//    inventory.addToInventory(item);
     grandTotal += item.getTotal();
 }
 
-node<member>* memberList::search(std::string id)
+node<member>* memberList::search(string id)
 {
     node<member>* temp = allMembers.begin();
     while(temp != NULL)
@@ -246,102 +214,45 @@ node<member>* memberList::search(std::string id)
     return NULL;
 }
 
-node<member>* memberList::search(std::string firstName, std::string lastName)
+node<member>* memberList::search(string lastName,string firstName)
 {
     node<member>* temp = allMembers.begin();
     while(temp != NULL)
     {
-        if (temp->item.getFirstName() == firstName && temp->item.getLastName() == lastName)
+        if (temp->item.getLastName() == lastName && temp->item.getFirstName() == firstName)
             return temp;
         temp = temp->next;
     }
     return NULL;
 }
 
+//memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
+//{
+//    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
+//    {
+//        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
+//            return temp->item.getMemberPurchase();
+//    }
+//    //qDebug() << "There is no member named " << QString::fromStdString(firstName) << " " << QString::fromStdString(lastName) << " stored in program." << endl;
+//    return NULL;
+//}
 
-memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
-{
-    for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
-    {
-        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
-            return temp->item.getMemberPurchase();
+//memberPurchase* memberList::memberPurchaseSearch(string id)
+//{
+//    node<member> *temp = search(id);
+//    if (temp != NULL)
+//        return temp->item.getMemberPurchase();
+//    //qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
+//    return NULL;
+//}
+
+void memberList::print(){
+    node<member>* walker=allMembers.begin();
+    while(walker){
+        cout<<walker->item.getFullName()<<" | "
+            <<walker->item.getID()<<endl;
+        walker=walker->next;
     }
-    qDebug() << "There is no member named " << QString::fromStdString(firstName) << " " << QString::fromStdString(lastName) << " stored in program." << endl;
-    return NULL;
-}
-
-memberPurchase* memberList::memberPurchaseSearch(string id)
-{
-    node<member> *temp = search(id);
-    if (temp != NULL)
-        return temp->item.getMemberPurchase();
-    qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
-    return NULL;
-}
-
-bool memberList::readMemberFile(std::string filename)
-{
-    fstream file;
-    file.open(filename, ios::in);
-    string name;
-    if(file.is_open()){
-        while(getline(file,name))
-        {
-            stringstream ss;
-            string first, last, ID, type, exp;
-            ss << name;
-            ss >> first >> last;
-            getline(file,ID);
-            ss << ID;
-            ss >> ID;
-            getline(file,type);
-            ss << type;
-            ss >> type;
-            getline(file,exp);
-            ss << exp;
-            ss >> exp;
-
-            member newMember;
-            newMember.setName(first, last);
-            newMember.setMembershipNumber(ID);
-            newMember.setMembershipType(type);
-            newMember.setExpirationDate(exp);
-            addMember(newMember);
-        }
-        file.close();
-        return true;
-    }
-    return false;
-}
-
-bool memberList::readSalesFile(std::string filename)
-{
-    fstream file;
-    file.open(filename, ios::in);
-    string date;
-    if(file.is_open()){
-        while(getline(file, date))
-        {
-            string itemname, memberID, numbers;
-            stringstream ss;
-            double price;
-            int quantity;
-            ss << date;
-            ss >> date;
-            getline(file,memberID);
-            ss << memberID;
-            ss >> memberID;
-            getline(file, itemname);
-            getline(file, numbers);
-            ss << numbers;
-            ss >> price >> quantity;
-            Item purchased(itemname, price, quantity);
-            node<member>* findMember = search(memberID);
-            addPurchases(findMember, date, purchased);
-        }
-        return true;
-    }
-    return false;
 }
 
 ostream& operator<<(ostream& out, memberList& x)
