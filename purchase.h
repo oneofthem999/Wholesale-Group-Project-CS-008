@@ -9,6 +9,7 @@ struct purchase
     std::string transactionDate;
     Product product;
     bool operator!=(const purchase& RHS);
+    bool operator>(const purchase& RHS);
     friend ostream& operator<<(ostream& out, purchase& purch);
 };
 

@@ -4,6 +4,9 @@
 bool purchase::operator!=(const purchase& RHS)
 { return ((transactionDate != RHS.transactionDate) || (product != RHS.product)); }
 
+bool purchase::operator>(const purchase& RHS)
+{ return (transactionDate > RHS.transactionDate);}
+
 ostream& operator<<(ostream& out, purchase& purch)
 {
     out << purch.transactionDate << endl
@@ -24,6 +27,7 @@ void memberPurchase::addPurchase(std::string date, Product& item)
     newTransaction.transactionDate = date;
     newTransaction.product = item;
     purchases.InsertHead(newTransaction);
+    purchases.sort();
     ++numberOfPurchases;
 }
 

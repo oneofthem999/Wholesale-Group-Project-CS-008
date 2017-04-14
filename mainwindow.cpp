@@ -259,7 +259,7 @@ void MainWindow::on_pushButton_2_clicked()
     srand(time(NULL));
     id = to_string(rand() % 90000 + 10000);
 
-    date = "04/17/13";
+    date = "04/17/2013";
     tempFirst = win.firstName.toStdString();
     tempLast = win.lastName.toStdString();
 
@@ -267,47 +267,89 @@ void MainWindow::on_pushButton_2_clicked()
    members.addMember(newMember);
 
    display();
-
 }
 
 void MainWindow::on_pushButton_5_clicked()
 {
-    QString date = ui->lineEdit->text();
-    QString title = "Daily Sales Report ";
-    title.append(date);
-    ui->label_3->setText(title);
-    ui->scrollArea->show();
-    ui->textEdit->clear();
-
-    class::dailyReport report(members, date.toStdString());
-    if(report.getTotalRevenue() == 0)
-        ui->textEdit->append("No sales data for that day.");
-    else
+    if(ui->label_2->text() == "Enter date for sales report")
     {
-        ui->textEdit->append("Members who shopped: ");
-        ui->textEdit->append(QString::fromStdString(report.getReport(members)));
-        QString basic = "Basic members: ";
-        basic.append(QString::number(report.getBasicMembers()));
-        ui->textEdit->append(basic);
-        QString preferred = "Preferred members: ";
-        preferred.append(QString::number(report.getPreferredMembers()));
-        ui->textEdit->append(preferred);
-        ui->textEdit->append("");
+        QString date = ui->lineEdit->text();
+        QString title = "Daily Sales Report ";
+        title.append(date);
+        ui->label_3->setText(title);
+        ui->scrollArea->show();
+        ui->textEdit->clear();
 
-        node<Product>* sold = report.getDailyInventory().getInventory().begin();
-        while(sold != NULL)
+        class::dailyReport report(members, date.toStdString());
+        if(report.getTotalRevenue() == 0)
+            ui->textEdit->append("No sales data for that day.");
+        else
         {
-            QString line = "Item Name: ";
-            line.append(QString::fromStdString(sold->item.getName()).simplified());
-            ui->textEdit->append(line);
-
-            QString line2 = "Quantity Sold: ";
-            line2.append(QString::number(sold->item.getQuantity()));
-            ui->textEdit->append(line2);
+            ui->textEdit->append("Members who shopped: ");
+            ui->textEdit->append(QString::fromStdString(report.getReport(members)));
+            QString basic = "Basic members: ";
+            basic.append(QString::number(report.getBasicMembers()));
+            ui->textEdit->append(basic);
+            QString preferred = "Preferred members: ";
+            preferred.append(QString::number(report.getPreferredMembers()));
+            ui->textEdit->append(preferred);
             ui->textEdit->append("");
 
-            sold = sold->next;
+            node<Product>* sold = report.getDailyInventory().getInventory().begin();
+            while(sold != NULL)
+            {
+                QString line = "Item Name: ";
+                line.append(QString::fromStdString(sold->item.getName()).simplified());
+                ui->textEdit->append(line);
+
+                line = "Quantity Sold: ";
+                line.append(QString::number(sold->item.getQuantity()));
+                ui->textEdit->append(line);
+                ui->textEdit->append("");
+
+                sold = sold->next;
+            }
         }
+        ui->textEdit->scroll(0,0);
+    }
+
+    else if(ui->label_2->text() == "Enter Member ID")
+    {
+        QString ID = ui->lineEdit->text();
+        QString title = "Member's Purchases ";
+        title.append(ID);
+        ui->label_3->setText(title);
+        ui->scrollArea->show();
+        ui->textEdit->clear();
+
+        node<member>* found = members.search(ID.toStdString());
+        if(found == NULL)
+            ui->textEdit->append("No member found with that ID.");
+        else
+        {
+            memberPurchase* allPurch = found->item.getMemberPurchase();
+            node<purchase>* singlePurch = allPurch->getPurchases().begin();
+            while(singlePurch != NULL)
+            {
+                QString line = "Purchase Date: ";
+                line.append(QString::fromStdString(singlePurch->item.transactionDate));
+                ui->textEdit->append(line);
+
+                line = "Item Name: ";
+                line.append(QString::fromStdString(singlePurch->item.product.getName()).simplified());
+                ui->textEdit->append(line);
+
+                line = "Price: ";
+                line.append(QString::number(singlePurch->item.product.getPrice()));
+                line.append("   Quantity: ");
+                line.append(QString::number(singlePurch->item.product.getQuantity()));
+                ui->textEdit->append(line);
+                ui->textEdit->append("");
+
+                singlePurch = singlePurch->next;
+            }
+        }
+        ui->textEdit->scroll(0,0);
     }
 }
 
