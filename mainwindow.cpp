@@ -494,7 +494,10 @@ void MainWindow::on_pushButton_5_clicked()
             ui->textEdit->append("No sales data for that day.");
         else
         {
-            ui->textEdit->append("Members who shopped: ");
+            QString line = "Total revenue: $";
+            line.append(QString::number(report.getTotalRevenue()));
+            ui->textEdit->append(line);
+            ui->textEdit->append("\nMembers who shopped: ");
             ui->textEdit->append(QString::fromStdString(report.getReport(members)));
             QString basic = "Basic members: ";
             basic.append(QString::number(report.getBasicMembers()));
