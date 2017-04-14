@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_3, SIGNAL(clicked(bool)),this,SLOT(remove()));
     connect(ui->actionDaily_Sales_Report, SIGNAL(triggered(bool)),this,SLOT(salesReport()));
     connect(ui->actionLookup_ID, SIGNAL(triggered(bool)),this,SLOT(memberIDSearch()));
+    connect(ui->actionLookup_Name,SIGNAL(triggered(bool)),this,SLOT(memberNameSearch()));
 }
 
 MainWindow::~MainWindow()
@@ -226,7 +227,7 @@ void MainWindow::give()
 
 void MainWindow::salesReport()
 {
-    ui->groupBox->setTitle("Daily Sales Report");
+    ui->groupBox->setTitle("Daily Sales Report Search");
     ui->label_2->setText("Enter date for sales report");
     ui->lineEdit->clear();
     ui->groupBox->show();
@@ -234,8 +235,16 @@ void MainWindow::salesReport()
 
 void MainWindow::memberIDSearch()
 {
-    ui->groupBox->setTitle("Member's Purchases");
+    ui->groupBox->setTitle("Member's Purchases Search");
     ui->label_2->setText("Enter Member ID");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::memberNameSearch()
+{
+    ui->groupBox->setTitle("Member's Purchases Search");
+    ui->label_2->setText("Enter Member Name");
     ui->lineEdit->clear();
     ui->groupBox->show();
 }
@@ -313,40 +322,63 @@ void MainWindow::on_pushButton_5_clicked()
         ui->textEdit->scroll(0,0);
     }
 
-    else if(ui->label_2->text() == "Enter Member ID")
+    else if(ui->groupBox->title() == "Member's Purchases Search")
     {
-        QString ID = ui->lineEdit->text();
         QString title = "Member's Purchases ";
-        title.append(ID);
-        ui->label_3->setText(title);
         ui->scrollArea->show();
         ui->textEdit->clear();
+        node<member>* found = NULL;
 
-        node<member>* found = members.search(ID.toStdString());
+        if(ui->label_2->text() == "Enter Member ID")
+        {
+            QString ID = ui->lineEdit->text();
+            title.append(ID);
+            ui->label_3->setText(title);
+            found = members.search(ID.toStdString());
+        }
+        else if(ui->label_2->text() == "Enter Member Name")
+        {
+            QString fullName = ui->lineEdit->text();
+            title.append(fullName);
+            ui->label_3->setText(title);
+            QStringList name = fullName.split(" ");
+            if(name.size() > 1)
+            {
+                QString first = name[0];
+                QString last = name[1];
+                found = members.search(first.toStdString(),last.toStdString());
+            }
+        }
+
         if(found == NULL)
-            ui->textEdit->append("No member found with that ID.");
+            ui->textEdit->append("No member found.");
         else
         {
             memberPurchase* allPurch = found->item.getMemberPurchase();
-            node<purchase>* singlePurch = allPurch->getPurchases().begin();
-            while(singlePurch != NULL)
+            if(allPurch->size() == 0)
+                ui->textEdit->append("No purchases made by this member.");
+            else
             {
-                QString line = "Purchase Date: ";
-                line.append(QString::fromStdString(singlePurch->item.transactionDate));
-                ui->textEdit->append(line);
+                node<purchase>* singlePurch = allPurch->getPurchases().begin();
+                while(singlePurch != NULL)
+                {
+                    QString line = "Purchase Date: ";
+                    line.append(QString::fromStdString(singlePurch->item.transactionDate));
+                    ui->textEdit->append(line);
 
-                line = "Item Name: ";
-                line.append(QString::fromStdString(singlePurch->item.product.getName()).simplified());
-                ui->textEdit->append(line);
+                    line = "Item Name: ";
+                    line.append(QString::fromStdString(singlePurch->item.product.getName()).simplified());
+                    ui->textEdit->append(line);
 
-                line = "Price: ";
-                line.append(QString::number(singlePurch->item.product.getPrice()));
-                line.append("   Quantity: ");
-                line.append(QString::number(singlePurch->item.product.getQuantity()));
-                ui->textEdit->append(line);
-                ui->textEdit->append("");
+                    line = "Price: $";
+                    line.append(QString::number(singlePurch->item.product.getPrice(), 'f', 2));
+                    line.append("   Quantity: ");
+                    line.append(QString::number(singlePurch->item.product.getQuantity()));
+                    ui->textEdit->append(line);
+                    ui->textEdit->append("");
 
-                singlePurch = singlePurch->next;
+                    singlePurch = singlePurch->next;
+                }
             }
         }
         ui->textEdit->scroll(0,0);
