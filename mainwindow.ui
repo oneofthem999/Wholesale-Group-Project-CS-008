@@ -287,6 +287,7 @@
     <addaction name="actionSingle_Item_Report"/>
     <addaction name="actionMember_Rebates"/>
     <addaction name="actionMembership_ues"/>
+    <addaction name="actionExpiration_Month"/>
    </widget>
    <addaction name="menuName_h_Not_Found"/>
   </widget>
@@ -319,6 +320,11 @@
   <action name="actionSingle_Item_Report">
    <property name="text">
     <string>Single Item Report</string>
+   </property>
+  </action>
+  <action name="actionExpiration_Month">
+   <property name="text">
+    <string>Expiration Month</string>
    </property>
   </action>
  </widget>

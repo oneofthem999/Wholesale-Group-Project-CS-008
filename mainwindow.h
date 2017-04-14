@@ -38,6 +38,7 @@ public slots:
     void memberIDSearch();
     void memberNameSearch();
     void itemNameSearch();
+    void monthSearch();
     void memberTabSearch();
     void purchaseTabSearch();
     void itemTabSearch();

@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLookup_ID,SIGNAL(triggered(bool)),this,SLOT(memberIDSearch()));
     connect(ui->actionLookup_Name,SIGNAL(triggered(bool)),this,SLOT(memberNameSearch()));
     connect(ui->actionSingle_Item_Report,SIGNAL(triggered(bool)),this,SLOT(itemNameSearch()));
+    connect(ui->actionExpiration_Month,SIGNAL(triggered(bool)),this,SLOT(monthSearch()));
     connect(ui->pushButton_6,SIGNAL(clicked(bool)),this,SLOT(search()));
     connect(ui->pushButton_7,SIGNAL(clicked(bool)),this,SLOT(addPurchase()));
 }
@@ -453,6 +454,14 @@ void MainWindow::itemNameSearch()
     ui->groupBox->show();
 }
 
+void MainWindow::monthSearch()
+{
+    ui->groupBox->setTitle("Expiration Month Search");
+    ui->label_2->setText("Enter 2 Digit Month");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
 void MainWindow::memberTabSearch()
 {
     ui->groupBox->setTitle("Member Lookup");
@@ -558,6 +567,7 @@ void MainWindow::on_pushButton_5_clicked()
             showPurchases(found);
         ui->textEdit->moveCursor(QTextCursor::Start);
     }
+
     else if(ui->groupBox->title() == "Item Search")
     {
         ui->scrollArea->show();
@@ -585,6 +595,35 @@ void MainWindow::on_pushButton_5_clicked()
             ui->textEdit->append(line);
         }
     }
+
+    else if(ui->groupBox->title() == "Expiration Month Search")
+    {
+        ui->scrollArea->show();
+        ui->textEdit->clear();
+        QString month = ui->lineEdit->text();
+        node<member>* cursor = members.getMembers().begin();
+        while(cursor)
+        {
+            if(cursor->item.getExpirationDate().find(month.toStdString()) == 0)
+            {
+                QString line = "Member Name: ";
+                line.append(QString::fromStdString(cursor->item.getFullName()));
+                ui->textEdit->append(line);
+                line = "Expiration Date: ";
+                line.append(QString::fromStdString(cursor->item.getExpirationDate()));
+                ui->textEdit->append(line);
+                line = "Membership dues: $";
+                if(cursor->item.getMembershipType() == "Basic")
+                    line.append(QString::number(BASIC_DUES));
+                else if(cursor->item.getMembershipType() == "Preferred")
+                    line.append(QString::number(PREFERRED_DUES));
+                ui->textEdit->append(line);
+                ui->textEdit->append("");
+            }
+            cursor = cursor->next;
+        }
+    }
+
     else if(ui->groupBox->title() == "Member Lookup")
     {
         QString toFind = ui->lineEdit->text();
