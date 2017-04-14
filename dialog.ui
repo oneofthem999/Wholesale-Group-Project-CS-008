@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>353</width>
+    <height>230</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>240</y>
-     <width>341</width>
-     <height>32</height>
+     <x>170</x>
+     <y>177</y>
+     <width>166</width>
+     <height>24</height>
     </rect>
    </property>
    <property name="orientation">
@@ -32,9 +32,9 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>90</y>
-     <width>61</width>
+     <x>9</x>
+     <y>29</y>
+     <width>70</width>
      <height>16</height>
     </rect>
    </property>
@@ -45,9 +45,9 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>120</y>
-     <width>61</width>
+     <x>9</x>
+     <y>79</y>
+     <width>69</width>
      <height>16</height>
     </rect>
    </property>
@@ -58,43 +58,43 @@
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>90</y>
-     <width>113</width>
-     <height>20</height>
+     <x>93</x>
+     <y>29</y>
+     <width>221</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_2">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>120</y>
-     <width>113</width>
-     <height>20</height>
+     <x>93</x>
+     <y>79</y>
+     <width>221</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>150</y>
-     <width>61</width>
+     <x>9</x>
+     <y>129</y>
+     <width>113</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Membership:</string>
+    <string>Membership Type:</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="checkBox">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>150</y>
-     <width>70</width>
-     <height>17</height>
+     <x>177</x>
+     <y>129</y>
+     <width>83</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="text">
@@ -104,10 +104,10 @@
   <widget class="QCheckBox" name="checkBox_2">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>150</y>
-     <width>70</width>
-     <height>17</height>
+     <x>266</x>
+     <y>129</y>
+     <width>58</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="text">

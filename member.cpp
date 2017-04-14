@@ -107,7 +107,7 @@ bool member::setExpirationDate(std::string date)
     return true;
 }
 
-void member::enterPurchase(std::string date, Item& item)
+void member::enterPurchase(std::string date, Product &item)
 {
     memberPurchases->addPurchase(date, item);
     setAmountSpent(item.getTotal());
@@ -145,6 +145,10 @@ bool member::shouldUpgradeOrDowngrade() const
     }
 
     return false;
+}
+
+node<purchase>* member::searchPurchase(string transactionDate, int& pos, bool& finish){
+    return memberPurchases->search(transactionDate,pos,finish);
 }
 
 bool member::operator<(const member& RHS) { return getFirstName() < RHS.getFirstName(); }
@@ -211,22 +215,29 @@ void memberList::deleteMember(string id)
 bool memberList::editMember(member &updated, std::string first, std::string last, std::string id, std::string type, std::string exp)
 {
     node<member>* edit = search(updated.getID());
-    if(!first.empty())
-        edit->item.setName(first, edit->item.getLastName());
-    if(!last.empty())
-        edit->item.setName(edit->item.getFirstName(), last);
+    if(!first.empty()){
+        if(!edit->item.setName(first, edit->item.getLastName()))
+            return false;
+    }
+    if(!last.empty()){
+        if(!edit->item.setName(edit->item.getFirstName(), last))
+            return false;
+    }
     if(!id.empty())
     {
         if(search(id) == NULL)
             edit->item.setMembershipNumber(id);
+        else
+            return false;
     }
     if(!type.empty())
         edit->item.setMembershipType(type);
     if(!exp.empty())
         edit->item.setExpirationDate(exp);
+    return true;
 }
 
-void memberList::addPurchases(node<member>* mem, std::string date, Item& item)
+void memberList::addPurchases(node<member>* mem, std::string date, Product &item)
 {
     mem->item.enterPurchase(date, item);
     allPurchases.insertMemberPurchases(*mem->item.getMemberPurchase());
@@ -246,6 +257,46 @@ node<member>* memberList::search(std::string id)
     return NULL;
 }
 
+node<member>* memberList::search(std::string firstName, std::string lastName)
+{
+    node<member>* temp = allMembers.begin();
+    while(temp != NULL)
+    {
+        if (temp->item.getFirstName() == firstName && temp->item.getLastName() == lastName)
+            return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+node<purchase>* memberList::searchPurchaseByDate(string date, int& memPos, int& purPos, bool& finish){
+    node<purchase>* result;
+    node<member>* memberWalker = allMembers.begin();
+    //move to memPos
+    for(int i=0;i<memPos;i++){
+        if(memberWalker->next)
+            memberWalker=memberWalker->next;
+        else
+            finish=true;    //if there is no next, the search finished
+    }
+    //
+    while(memberWalker){
+        bool searchTheMemberPurchaseCompletely = false;
+        //search all results in single memberPurchase
+        while(!searchTheMemberPurchaseCompletely){
+            result=memberWalker->item.searchPurchase(date,purPos,searchTheMemberPurchaseCompletely);
+            if(result)
+                return result;
+        }
+        memPos++;
+        memberWalker=memberWalker->next;
+        purPos=0;
+    }
+    finish=true;
+    return NULL;
+}
+
+
 memberPurchase* memberList::memberPurchaseSearch(string firstName, string lastName)
 {
     for (node<member> *temp = allMembers.begin(); temp != NULL; temp = temp->next)
@@ -264,6 +315,17 @@ memberPurchase* memberList::memberPurchaseSearch(string id)
         return temp->item.getMemberPurchase();
     qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
     return NULL;
+}
+
+string memberList::getID(int pos){
+    node<member>* memberWalker = allMembers.begin();
+    for(int i=0;i<pos;i++){
+        if(memberWalker->next)
+            memberWalker=memberWalker->next;
+        else
+            return "-1";   //if there is no next, return -1
+    }//point to (pos)th
+    return memberWalker->item.getID();
 }
 
 bool memberList::readMemberFile(std::string filename)
@@ -322,10 +384,11 @@ bool memberList::readSalesFile(std::string filename)
             getline(file, numbers);
             ss << numbers;
             ss >> price >> quantity;
-            Item purchased(itemname, price, quantity);
+            Product purchased(itemname, price, quantity);
             node<member>* findMember = search(memberID);
             addPurchases(findMember, date, purchased);
         }
+        file.close();
         return true;
     }
     return false;

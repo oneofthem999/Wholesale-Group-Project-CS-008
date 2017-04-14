@@ -17,7 +17,9 @@ SOURCES += main.cpp\
     member.cpp \
     purchase.cpp \
     inventory.cpp \
-    item.cpp
+    dialog.cpp \
+    product.cpp \
+    dailyreport.cpp
 
 HEADERS  += mainwindow.h \
     member.h \
@@ -25,6 +27,9 @@ HEADERS  += mainwindow.h \
     thenode.h \
     purchase.h \
     inventory.h \
-    item.h
+    dialog.h \
+    product.h \
+    dailyreport.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialog.ui

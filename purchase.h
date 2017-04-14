@@ -2,12 +2,12 @@
 #define PURCHASE_H
 #include <string>
 #include "thelist.h"
-#include "item.h"
+#include "product.h"
 
 struct purchase
 {
     std::string transactionDate;
-    Item item;
+    Product product;
     bool operator!=(const purchase& RHS);
     friend ostream& operator<<(ostream& out, purchase& purch);
 };
@@ -19,10 +19,11 @@ public:
     memberPurchase();
     memberPurchase(std::string id);
     // mutators
-    void addPurchase(std::string date, Item& item);
+    void addPurchase(std::string date, Product& item);
     void changeID(std::string id);
     // accessors
-    node<purchase>* search(Item& item);
+    node<purchase>* search(Product& item);
+    node<purchase>* search(string transactionDate, int& pos, bool& finish);
     node<purchase>* search(std::string transactionDate);
     double totalPurchaseCostOnDate(std::string transactionDate);
     double totalPurchaseCost();

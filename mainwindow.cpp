@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "dialog.h"
 #include "member.h"
+#include "dailyreport.h"
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -11,8 +13,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QRect rec = QApplication::desktop()->screenGeometry();
     this->show();
 
+    ui->groupBox->hide();
+    ui->scrollArea->hide();
+
     table = ui->tabWidget->widget(0)->findChild<QTableWidget*>();
-    getMemberInfo("shoppers.txt");
+    getMemberInfo("warehouse shoppers.txt");
     qDebug() << "Number of members:" << members.size();
     table->setRowCount(members.size());
     table->setColumnCount(4);
@@ -35,7 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     getSalesInfo("day5.txt");
 
     qDebug() << "Number of purchases:" << members.getAllPurchases().size();
-    qDebug().nospace() << "Grand total: $" << members.getGrandTotal();
     table1->setRowCount(members.getAllPurchases().size());
     table1->setColumnCount(5);
     QStringList hLabels1;
@@ -51,7 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
     table1->setSelectionMode(QAbstractItemView::SingleSelection);
 
     table2 = ui->tabWidget->widget(2)->findChild<QTableWidget*>();
-    qDebug() << "Number of items sold: " << members.getInventory().getNumberOfItems();
+    qDebug() << "Number of items sold:" << members.getInventory().getNumberOfItems();
+    qDebug().nospace() << "Total value: $" << members.getInventory().getTotalValue();
+
     table2->setRowCount(members.getInventory().getNumberOfItems());
     table2->setColumnCount(3);
     QStringList labels;
@@ -68,8 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setGeometry(rec.width()/2-400, rec.height()/2-300, 800, 500);
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(give()));
     connect(ui->pushButton, SIGNAL(clicked(bool)),this,SLOT(profile()));
-    connect(ui->pushButton_4, SIGNAL(clicked(bool)),this,SLOT(remove()));
-
+    connect(ui->pushButton_3, SIGNAL(clicked(bool)),this,SLOT(remove()));
+    connect(ui->actionDaily_Sales_Report, SIGNAL(triggered(bool)),this,SLOT(salesReport()));
+    connect(ui->actionLookup_ID, SIGNAL(triggered(bool)),this,SLOT(memberIDSearch()));
 }
 
 MainWindow::~MainWindow()
@@ -94,6 +101,9 @@ void MainWindow::display()
         int row = 0;
         while(cursor != NULL)
         {
+            ui->pushButton->show();
+            ui->pushButton_2->show();
+            ui->pushButton_3->show();
             table->setItem(row,0, new QTableWidgetItem(QString::fromStdString(cursor->item.getFullName())));
             table->setItem(row,1, new QTableWidgetItem(QString::fromStdString(cursor->item.getID())));
             table->setItem(row,2, new QTableWidgetItem(QString::fromStdString(cursor->item.getMembershipType())));
@@ -108,6 +118,9 @@ void MainWindow::display()
         }
     }
     else if(ui->tabWidget->currentIndex() == 1){
+        QString labelText = "Grand Total: $";
+        labelText.append(QString::number(members.getGrandTotal()));
+        ui->label->setText(labelText);
         node<memberPurchase>* memberPurchases = members.getAllPurchases().getTotalPurchases().begin();
         node<purchase>* cursor1 = memberPurchases->item.getPurchases().begin();
         int row1 = 0;
@@ -116,9 +129,9 @@ void MainWindow::display()
             {
                 table1->setItem(row1,0, new QTableWidgetItem(QString::fromStdString(cursor1->item.transactionDate)));
                 table1->setItem(row1,1, new QTableWidgetItem(QString::fromStdString(memberPurchases->item.getMemberID())));
-                table1->setItem(row1,2, new QTableWidgetItem(QString::fromStdString(cursor1->item.item.getItemName())));
-                table1->setItem(row1,3, new QTableWidgetItem(QString::number(cursor1->item.item.getItemPrice(), 'f', 2)));
-                table1->setItem(row1,4, new QTableWidgetItem(QString::number(cursor1->item.item.getItemQuantity())));
+                table1->setItem(row1,2, new QTableWidgetItem(QString::fromStdString(cursor1->item.product.getName())));
+                table1->setItem(row1,3, new QTableWidgetItem(QString::number(cursor1->item.product.getPrice(), 'f', 2)));
+                table1->setItem(row1,4, new QTableWidgetItem(QString::number(cursor1->item.product.getQuantity())));
                 for(int i = 0; i < 5; ++i)
                 {
                     table1->item(row1,i)->setFlags((table1->item(row1,i)->flags() ^ Qt::ItemIsEditable));
@@ -134,12 +147,12 @@ void MainWindow::display()
     }
 
     else if(ui->tabWidget->currentIndex() == 2){
-        node<Item>* item = members.getInventory().getInventory().begin();
+        node<Product>* item = members.getInventory().getInventory().begin();
         int row = 0;
         while(item != NULL){
-            table2->setItem(row,0, new QTableWidgetItem(QString::fromStdString(item->item.getItemName())));
-            table2->setItem(row,1, new QTableWidgetItem(QString::number(item->item.getItemPrice(), 'f', 2)));
-            table2->setItem(row,2, new QTableWidgetItem(QString::number(item->item.getItemQuantity())));
+            table2->setItem(row,0, new QTableWidgetItem(QString::fromStdString(item->item.getName())));
+            table2->setItem(row,1, new QTableWidgetItem(QString::number(item->item.getPrice(), 'f', 2)));
+            table2->setItem(row,2, new QTableWidgetItem(QString::number(item->item.getQuantity())));
             for(int i = 0; i < 3; ++i)
             {
                 table2->item(row,i)->setFlags((table2->item(row,i)->flags() ^ Qt::ItemIsEditable));
@@ -178,7 +191,7 @@ void MainWindow::remove()
         QString id = table->item(selectedRow, 1)->text();
         members.deleteMember(id.toStdString());
         table->removeRow(selectedRow);
-        table->setRowCount(members.size());
+        table->setRowCount(table->rowCount());
         display();
     }
 }
@@ -188,32 +201,111 @@ void MainWindow::give()
     int page;
     page = ui->tabWidget->currentIndex();
 
-//    if(page != 0)
-//    {
-//        ui->tableWidget->setRowCount(12);
-//        ui->tableWidget->setColumnCount(5);
-//        ui->tableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("Item Bought"));
-//        ui->tableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Cost"));
-//        //ui->tableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem("Quantity"));
-//    }
-//    else
-//    {
-//        ui->tableWidget->setColumnCount(4);
-//        ui->tableWidget->setRowCount(10);
-//        ui->tableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("Total"));
-//        getMemberInfo("shoppers.txt");
-//    }
+    if(page != 0)
+    {
+        ui->pushButton->hide();
+        ui->pushButton_2->hide();
+        ui->pushButton_3->hide();
+    }
+    else
+    {
+        ui->pushButton->hide();
+        ui->pushButton_2->hide();
+        ui->pushButton_3->hide();
+    }
 
-//    if(page == 1){
-//    }
-//    if(page == 2)
-//        getSalesInfo("day2.txt");
-//    if(page == 3)
-//        getSalesInfo("day3.txt");
-//    if(page == 4)
-//        getSalesInfo("day4.txt");
-//    if(page == 5)
-//        getSalesInfo("day5.txt");
+    if(page == 1)
+        ui->label->show();
+    else
+        ui->label->hide();
 
     display();
 }
+
+void MainWindow::salesReport()
+{
+    ui->groupBox->setTitle("Daily Sales Report");
+    ui->label_2->setText("Enter date for sales report");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::memberIDSearch()
+{
+    ui->groupBox->setTitle("Member's Purchases");
+    ui->label_2->setText("Enter Member ID");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    Dialog win;
+    win.setModal(true);
+    win.exec();
+
+    if(win.firstName.length() != 0)
+    {
+        int row = table->rowCount() - 1;
+        table->setRowCount(row + 1);
+        table->setItem(row,0,new QTableWidgetItem(win.firstName+" "+win.lastName));
+        table->setItem(row,1,new QTableWidgetItem("78452"));
+        table->setItem(row,3,new QTableWidgetItem("04/13/2017"));
+        if(win.basic)
+            ui->tableWidget->setItem(row,2,new QTableWidgetItem("Basic"));
+        if(win.pref)
+            ui->tableWidget->setItem(row,2,new QTableWidgetItem("Preferred"));
+        for(int i = 0; i < 4; ++i)
+        {
+            table->item(row,i)->setFlags((table->item(row,i)->flags() ^ Qt::ItemIsEditable));
+            table->item(row,i)->setTextAlignment(Qt::AlignCenter);
+        }
+
+    }
+
+    win.firstName.clear();
+
+
+}
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    QString date = ui->lineEdit->text();
+    QString title = "Daily Sales Report ";
+    title.append(date);
+    ui->label_3->setText(title);
+    ui->scrollArea->show();
+    ui->textEdit->clear();
+
+    class::dailyReport report(members, date.toStdString());
+    if(report.getTotalRevenue() == 0)
+        ui->textEdit->append("No sales data for that day.");
+    else
+    {
+        ui->textEdit->append("Members who shopped: ");
+        ui->textEdit->append(QString::fromStdString(report.getReport(members)));
+        QString basic = "Basic members: ";
+        basic.append(QString::number(report.getBasicMembers()));
+        ui->textEdit->append(basic);
+        QString preferred = "Preferred members: ";
+        preferred.append(QString::number(report.getPreferredMembers()));
+        ui->textEdit->append(preferred);
+        ui->textEdit->append("");
+
+        node<Product>* sold = report.getDailyInventory().getInventory().begin();
+        while(sold != NULL)
+        {
+            QString line = "Item Name: ";
+            line.append(QString::fromStdString(sold->item.getName()).simplified());
+            ui->textEdit->append(line);
+
+            QString line2 = "Quantity Sold: ";
+            line2.append(QString::number(sold->item.getQuantity()));
+            ui->textEdit->append(line2);
+            ui->textEdit->append("");
+
+            sold = sold->next;
+        }
+    }
+}
+

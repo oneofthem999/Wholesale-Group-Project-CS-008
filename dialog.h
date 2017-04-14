@@ -24,8 +24,8 @@ private slots:
     void on_buttonBox_accepted();
 public slots:
 
-    chosen();
-    chosen2();
+    void chosen();
+    void chosen2();
 
 
 private:

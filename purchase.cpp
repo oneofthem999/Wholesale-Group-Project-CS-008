@@ -2,14 +2,14 @@
 #include <QDebug>
 
 bool purchase::operator!=(const purchase& RHS)
-{ return ((transactionDate != RHS.transactionDate) || (item != RHS.item)); }
+{ return ((transactionDate != RHS.transactionDate) || (product != RHS.product)); }
 
 ostream& operator<<(ostream& out, purchase& purch)
 {
     out << purch.transactionDate << endl
-        << purch.item.getItemName() << endl
-        << purch.item.getItemPrice() << "   "
-        << purch.item.getItemQuantity() << endl;
+        << purch.product.getName() << endl
+        << purch.product.getPrice() << "   "
+        << purch.product.getQuantity() << endl;
     return out;
 }
 
@@ -18,11 +18,11 @@ memberPurchase::memberPurchase()
     numberOfPurchases = 0;
 }
 
-void memberPurchase::addPurchase(std::string date, Item& item)
+void memberPurchase::addPurchase(std::string date, Product& item)
 {
     purchase newTransaction;
     newTransaction.transactionDate = date;
-    newTransaction.item = item;
+    newTransaction.product = item;
     purchases.InsertHead(newTransaction);
     ++numberOfPurchases;
 }
@@ -36,7 +36,7 @@ double memberPurchase::totalPurchaseCost()
 {
     double total = 0;
     for (node<purchase> *temp = purchases.begin(); temp != NULL; temp = temp->next)
-        total += temp->item.item.getTotal();
+        total += temp->item.product.getTotal();
     return total;
 }
 
@@ -46,16 +46,16 @@ double memberPurchase::totalPurchaseCostOnDate(string date)
     for (node<purchase> *temp = purchases.begin(); temp != NULL; temp = temp->next)
     {
         if (temp->item.transactionDate == date)
-            total += temp->item.item.getTotal();
+            total += temp->item.product.getTotal();
     }
     return total;
 }
 
-node<purchase>* memberPurchase::search(Item& itemComp)
+node<purchase>* memberPurchase::search(Product &itemComp)
 {
     node<purchase> *temp = purchases.begin();
     {
-        if (temp->item.item == itemComp)
+        if (temp->item.product == itemComp)
             return temp;
         temp = temp->next;
     }
@@ -70,6 +70,30 @@ node<purchase>* memberPurchase::search(std::string transactionDateComp)
             return temp;
         temp = temp->next;
     }
+    return NULL;
+}
+
+node<purchase>* memberPurchase::search(string transactionDate, int& pos, bool& finish){
+    node<purchase> *purchaseWalker = purchases.begin();
+    for(int i=0; i<pos; i++){
+        if(purchaseWalker->next){
+            purchaseWalker=purchaseWalker->next;
+        }
+        else{
+            finish=true;
+            return NULL;
+        }
+    }//point to (pos)th
+
+    while(purchaseWalker){//is not null
+        pos++;
+        if(purchaseWalker->item.transactionDate==transactionDate)
+            return purchaseWalker;
+        else{
+            purchaseWalker=purchaseWalker->next;
+        }
+    }
+    finish=true;
     return NULL;
 }
 

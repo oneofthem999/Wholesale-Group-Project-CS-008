@@ -25,7 +25,7 @@ class member
         bool setMembershipNumber(std::string number);
         bool setMembershipType(std::string type = "Basic");
         bool setExpirationDate(std::string date);
-        void enterPurchase(std::string date, Item &item);
+        void enterPurchase(std::string date, Product &item);
         void setAmountSpent(double amountToAdd);
         void setRebateAmount();
 
@@ -40,6 +40,7 @@ class member
         double getRebateAmount() const        {return rebateAmount;}
         memberPurchase* getMemberPurchase()   { return memberPurchases; }
         bool shouldUpgradeOrDowngrade() const;
+        node<purchase>* searchPurchase(string transactionDate, int& pos, bool& finish);
 
         bool operator>(const member& RHS);
         bool operator<(const member& RHS);
@@ -72,13 +73,16 @@ class memberList
         void deleteMember(string firstName, string LastName);
         void deleteMember(string id);
         bool editMember(member &updated, std::string first="", std::string last="", std::string id="", std::string type="", std::string exp="");
-        void addPurchases(node<member>* mem, std::string date, Item &item);
+        void addPurchases(node<member>* mem, std::string date, Product &item);
         bool readMemberFile(std::string filename);
         bool readSalesFile(std::string filename);
         // accessors
         node<member>* search(string id);
+        node<member>* search(string firstName, string lastName);
+        node<purchase>* searchPurchaseByDate(string date, int& memPos, int& purPos, bool& finish);
         memberPurchase* memberPurchaseSearch(string firstName, string LastName);
         memberPurchase* memberPurchaseSearch(string id);
+        string getID(int pos);
         List<member>& getMembers() {return allMembers;}
         purchaseHistory& getAllPurchases() {return allPurchases;}
         Inventory& getInventory() {return inventory;}

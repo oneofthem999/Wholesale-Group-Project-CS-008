@@ -7,7 +7,6 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
-
     connect(ui->checkBox,SIGNAL(clicked(bool)),this,SLOT(chosen()));
     connect(ui->checkBox_2,SIGNAL(clicked(bool)),this,SLOT(chosen2()));
 }
@@ -20,7 +19,7 @@ Dialog::~Dialog()
 void Dialog::on_buttonBox_accepted()
 {
 
-    firstName= ui->lineEdit->text();
+    firstName = ui->lineEdit->text();
     lastName = ui->lineEdit_2->text();
 
    // firstName = QInputDialog::getText(this,tr("Enter Name"),tr("User Name"), QLineEdit::Normal,
@@ -32,7 +31,7 @@ void Dialog::on_buttonBox_accepted()
 
 }
 
-Dialog::chosen()
+void Dialog::chosen()
 {
     if(choice == true)
     {
@@ -48,7 +47,7 @@ Dialog::chosen()
     }
 }
 
-Dialog::chosen2()
+void Dialog::chosen2()
 {
     if(choice == true)
     {
@@ -63,3 +62,4 @@ Dialog::chosen2()
         basic = false;
     }
 }
+
