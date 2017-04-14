@@ -17,22 +17,17 @@ public:
     ~Dialog();
     QString firstName;
     QString lastName;
-    bool basic;
     bool pref;
 
 private slots:
     void on_buttonBox_accepted();
 public slots:
 
-    void chosen();
-    void chosen2();
-
+    void checkedPref();
+    void checkedBasic();
 
 private:
     Ui::Dialog *ui;
-    bool choice;
-
-
 
 };
 

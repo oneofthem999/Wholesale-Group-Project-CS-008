@@ -74,12 +74,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setGeometry(rec.width()/2-400, rec.height()/2-300, 800, 500);
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(give()));
-    connect(ui->pushButton, SIGNAL(clicked(bool)),this,SLOT(profile()));
-    connect(ui->pushButton_3, SIGNAL(clicked(bool)),this,SLOT(remove()));
+    connect(ui->pushButton,SIGNAL(clicked(bool)),this,SLOT(profile()));
+    connect(ui->pushButton_2,SIGNAL(clicked(bool)),this,SLOT(add()));
+    connect(ui->pushButton_3,SIGNAL(clicked(bool)),this,SLOT(remove()));
     connect(ui->actionDaily_Sales_Report, SIGNAL(triggered(bool)),this,SLOT(salesReport()));
-    connect(ui->actionLookup_ID, SIGNAL(triggered(bool)),this,SLOT(memberIDSearch()));
+    connect(ui->actionMember_Rebates,SIGNAL(triggered(bool)),this,SLOT(rebateReport()));
+    connect(ui->actionMembership_ues,SIGNAL(triggered(bool)),this,SLOT(duesReport()));
+    connect(ui->actionLookup_ID,SIGNAL(triggered(bool)),this,SLOT(memberIDSearch()));
     connect(ui->actionLookup_Name,SIGNAL(triggered(bool)),this,SLOT(memberNameSearch()));
-    connect(ui->actionItem_Lookup,SIGNAL(triggered(bool)),this,SLOT(itemSearch()));
+    connect(ui->actionSingle_Item_Report,SIGNAL(triggered(bool)),this,SLOT(itemNameSearch()));
+    connect(ui->pushButton_6,SIGNAL(clicked(bool)),this,SLOT(search()));
+    connect(ui->pushButton_7,SIGNAL(clicked(bool)),this,SLOT(addPurchase()));
 }
 
 MainWindow::~MainWindow()
@@ -99,15 +104,14 @@ void MainWindow::getSalesInfo(std::string filename)
 
 void MainWindow::display()
 {
-    if(ui->tabWidget->currentIndex() == 0){
-        node<member>* cursor = members.getMembers().begin();
+    int page;
+    page = ui->tabWidget->currentIndex();
+    if(page == 0){
         table->setRowCount(members.size());
+        node<member>* cursor = members.getMembers().begin();
         int row = 0;
         while(cursor != NULL)
         {
-            ui->pushButton->show();
-            ui->pushButton_2->show();
-            ui->pushButton_3->show();
             table->setItem(row,0, new QTableWidgetItem(QString::fromStdString(cursor->item.getFullName())));
             table->setItem(row,1, new QTableWidgetItem(QString::fromStdString(cursor->item.getID())));
             table->setItem(row,2, new QTableWidgetItem(QString::fromStdString(cursor->item.getMembershipType())));
@@ -117,13 +121,15 @@ void MainWindow::display()
                 table->item(row,i)->setFlags((table->item(row,i)->flags() ^ Qt::ItemIsEditable));
                 table->item(row,i)->setTextAlignment(Qt::AlignCenter);
             }
+            table->showRow(row);
             cursor = cursor->next;
             ++row;
         }
     }
-    else if(ui->tabWidget->currentIndex() == 1){
+    else if(page == 1){
+        table1->setRowCount(members.getAllPurchases().size());
         QString labelText = "Grand Total: $";
-        labelText.append(QString::number(members.getGrandTotal()));
+        labelText.append(QString::number(members.getGrandTotal(),'f',2));
         ui->label->setText(labelText);
         node<memberPurchase>* memberPurchases = members.getAllPurchases().getTotalPurchases().begin();
         node<purchase>* cursor1 = memberPurchases->item.getPurchases().begin();
@@ -141,6 +147,7 @@ void MainWindow::display()
                     table1->item(row1,i)->setFlags((table1->item(row1,i)->flags() ^ Qt::ItemIsEditable));
                     table1->item(row1,i)->setTextAlignment(Qt::AlignCenter);
                 }
+                table1->showRow(row1);
                 cursor1 = cursor1->next;
                 ++row1;
             }
@@ -150,11 +157,13 @@ void MainWindow::display()
         }
     }
 
-    else if(ui->tabWidget->currentIndex() == 2){
+    else if(page == 2){
+        table2->setRowCount(members.getInventory().getNumberOfItems());
         node<Product>* item = members.getInventory().getInventory().begin();
         int row = 0;
-        while(item != NULL){
-            table2->setItem(row,0, new QTableWidgetItem(QString::fromStdString(item->item.getName())));
+        while(item != NULL)
+        {
+            table2->setItem(row,0, new QTableWidgetItem(QString::fromStdString(item->item.getName()).simplified()));
             table2->setItem(row,1, new QTableWidgetItem(QString::number(item->item.getPrice(), 'f', 2)));
             table2->setItem(row,2, new QTableWidgetItem(QString::number(item->item.getQuantity())));
             for(int i = 0; i < 3; ++i)
@@ -162,13 +171,14 @@ void MainWindow::display()
                 table2->item(row,i)->setFlags((table2->item(row,i)->flags() ^ Qt::ItemIsEditable));
                 table2->item(row,i)->setTextAlignment(Qt::AlignCenter);
             }
-            table2->item(row,0)->setTextAlignment(Qt::AlignLeft);
-
+            table2->item(row,0)->setTextAlignment(Qt::AlignVCenter);
+            table2->showRow(row);
             item = item->next;
             ++row;
         }
     }
 }
+
 
 void MainWindow::showPurchases(node<member>* member)
 {
@@ -202,9 +212,6 @@ void MainWindow::showPurchases(node<member>* member)
 
 void MainWindow::profile()
 {
-    int page;
-    page = ui->tabWidget->currentIndex();
-
     int selectedRow = table->currentRow();
     QString id = table->item(selectedRow, 1)->text();
     node<member>* mem = members.search(id.toStdString());
@@ -253,80 +260,7 @@ void MainWindow::profile()
     ui->textEdit->moveCursor(QTextCursor::Start);
 }
 
-void MainWindow::remove()
-{
-    int page;
-    page = ui->tabWidget->currentIndex();
-    if(page == 0)
-    {
-        int selectedRow = table->currentRow();
-        QString id = table->item(selectedRow, 1)->text();
-        members.deleteMember(id.toStdString());
-        table->removeRow(selectedRow);
-        table->setRowCount(table->rowCount());
-        display();
-    }
-}
-
-void MainWindow::give()
-{
-    int page;
-    page = ui->tabWidget->currentIndex();
-
-    if(page != 0)
-    {
-        ui->pushButton->hide();
-        ui->pushButton_2->hide();
-        ui->pushButton_3->hide();
-    }
-    else
-    {
-        ui->pushButton->hide();
-        ui->pushButton_2->hide();
-        ui->pushButton_3->hide();
-    }
-
-    if(page == 1)
-        ui->label->show();
-    else
-        ui->label->hide();
-
-    display();
-}
-
-void MainWindow::salesReport()
-{
-    ui->groupBox->setTitle("Daily Sales Report Search");
-    ui->label_2->setText("Enter date for sales report");
-    ui->lineEdit->clear();
-    ui->groupBox->show();
-}
-
-void MainWindow::memberIDSearch()
-{
-    ui->groupBox->setTitle("Member's Purchases Search");
-    ui->label_2->setText("Enter Member ID");
-    ui->lineEdit->clear();
-    ui->groupBox->show();
-}
-
-void MainWindow::memberNameSearch()
-{
-    ui->groupBox->setTitle("Member's Purchases Search");
-    ui->label_2->setText("Enter Member Name");
-    ui->lineEdit->clear();
-    ui->groupBox->show();
-}
-
-void MainWindow::itemSearch()
-{
-    ui->groupBox->setTitle("Item Lookup");
-    ui->label_2->setText("Enter Item Name");
-    ui->lineEdit->clear();
-    ui->groupBox->show();
-}
-
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::add()
 {
     Dialog win;
     string type;
@@ -353,15 +287,203 @@ void MainWindow::on_pushButton_2_clicked()
    members.addMember(newMember);
 
    display();
+   members.writeMemberFile("warehouse shoppers.txt");
+}
+
+void MainWindow::remove()
+{
+    int selectedRow = table->currentRow();
+    QString id = table->item(selectedRow, 1)->text();
+    members.deleteMember(id.toStdString());
+    table->removeRow(selectedRow);
+    display();
+    members.writeMemberFile("warehouse shoppers.txt");
+}
+
+void MainWindow::search()
+{
+    int page;
+    page = ui->tabWidget->currentIndex();
+    if(ui->pushButton_6->text() == "Search")
+    {
+        if(page == 0)
+            memberTabSearch();
+        if(page == 1)
+            purchaseTabSearch();
+        if(page == 2)
+            itemTabSearch();
+        ui->pushButton_6->setText("Clear Search");
+    }
+    else if(ui->pushButton_6->text() == "Clear Search")
+    {
+        ui->pushButton_6->setText("Search");
+        give();
+    }
+}
+
+void MainWindow::addPurchase()
+{
+    int selectedRow = table->currentRow();
+    QString id = table->item(selectedRow, 1)->text();
+    node<member>* found = members.search(id.toStdString());
+    Product example("Socks",4.99,2);
+    members.addPurchases(found, "03/09/2013", example);
+    members.appendSalesFile("day5.txt",id.toStdString(),found->item.getMemberPurchase()->search(example)->item);
+}
+
+void MainWindow::give()
+{
+    int page;
+    page = ui->tabWidget->currentIndex();
+
+    if(page != 0)
+    {
+        ui->pushButton->hide();
+        ui->pushButton_2->hide();
+        ui->pushButton_3->hide();
+        ui->pushButton_7->hide();
+    }
+    else
+    {
+        ui->pushButton->show();
+        ui->pushButton_2->show();
+        ui->pushButton_3->show();
+        ui->pushButton_7->show();
+    }
+
+    if(page == 1)
+        ui->label->show();
+    else
+        ui->label->hide();
+
+    display();
+}
+
+void MainWindow::salesReport()
+{
+    ui->groupBox->setTitle("Daily Sales Report Search");
+    ui->label_2->setText("Enter date for sales report");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::rebateReport()
+{
+    ui->scrollArea->show();
+    ui->textEdit->clear();
+    ui->label_3->setText("Preferred Member Rebates Report");
+    node<member>* cursor = members.getMembers().begin();
+    while(cursor)
+    {
+        if(cursor->item.getMembershipType() == "Preferred")
+        {
+            QString line = "Member's Name: ";
+            line.append(QString::fromStdString(cursor->item.getFullName()));
+            ui->textEdit->append(line);
+            line = "Rebate amount: $";
+            line.append(QString::number(cursor->item.getRebateAmount(),'f',2));
+            ui->textEdit->append(line);
+            ui->textEdit->append("");
+        }
+        cursor = cursor->next;
+    }
+    ui->textEdit->moveCursor(QTextCursor::Start);
+}
+
+void MainWindow::duesReport()
+{
+    ui->scrollArea->show();
+    ui->textEdit->clear();
+    ui->label_3->setText("Membership Dues Report");
+    node<member>* cursor = members.getMembers().begin();
+    while(cursor)
+    {
+        if(cursor->item.getMembershipType() == "Preferred")
+        {
+            QString line = "Member's Name: ";
+            line.append(QString::fromStdString(cursor->item.getFullName()));
+            ui->textEdit->append(line);
+            line = "Membership dues: $";
+            line.append(QString::number(PREFERRED_DUES));
+            ui->textEdit->append(line);
+            ui->textEdit->append("");
+        }
+        cursor = cursor->next;
+    }
+
+    cursor = members.getMembers().begin();
+    while(cursor)
+    {
+        if(cursor->item.getMembershipType() == "Basic")
+        {
+            QString line = "Member's Name: ";
+            line.append(QString::fromStdString(cursor->item.getFullName()));
+            ui->textEdit->append(line);
+            line = "Membership dues amount: $";
+            line.append(QString::number(BASIC_DUES));
+            ui->textEdit->append(line);
+            ui->textEdit->append("");
+        }
+        cursor = cursor->next;
+    }
+    ui->textEdit->moveCursor(QTextCursor::Start);
+}
+
+void MainWindow::memberIDSearch()
+{
+    ui->groupBox->setTitle("Member's Purchases Search");
+    ui->label_2->setText("Enter Member ID");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::memberNameSearch()
+{
+    ui->groupBox->setTitle("Member's Purchases Search");
+    ui->label_2->setText("Enter Member Name");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::itemNameSearch()
+{
+    ui->groupBox->setTitle("Item Search");
+    ui->label_2->setText("Enter Item Name");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::memberTabSearch()
+{
+    ui->groupBox->setTitle("Member Lookup");
+    ui->label_2->setText("Enter Search Criteria");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::purchaseTabSearch()
+{
+    ui->groupBox->setTitle("Purchase Lookup");
+    ui->label_2->setText("Enter Search Criteria");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
+}
+
+void MainWindow::itemTabSearch()
+{
+    ui->groupBox->setTitle("Item Lookup");
+    ui->label_2->setText("Enter Search Criteria");
+    ui->lineEdit->clear();
+    ui->groupBox->show();
 }
 
 void MainWindow::on_pushButton_5_clicked()
 {
-    ui->scrollArea->show();
-    ui->textEdit->clear();
 
     if(ui->groupBox->title() == "Daily Sales Report Search")
     {
+        ui->scrollArea->show();
+        ui->textEdit->clear();
         QString title = "Daily Sales Report ";
         QString date = ui->lineEdit->text();
         title.append(date);
@@ -402,6 +524,8 @@ void MainWindow::on_pushButton_5_clicked()
 
     else if(ui->groupBox->title() == "Member's Purchases Search")
     {
+        ui->scrollArea->show();
+        ui->textEdit->clear();
         QString title = "Member's Purchases ";
         node<member>* found = NULL;
 
@@ -425,31 +549,76 @@ void MainWindow::on_pushButton_5_clicked()
                 found = members.search(first.toStdString(),last.toStdString());
             }
         }
-
         if(found == NULL)
             ui->textEdit->append("No member found.");
         else
             showPurchases(found);
         ui->textEdit->moveCursor(QTextCursor::Start);
     }
-
-    else if(ui->groupBox->title() == "Item Lookup")
+    else if(ui->groupBox->title() == "Item Search")
     {
-        QString title = "Item Lookup ";
+        ui->scrollArea->show();
+        ui->textEdit->clear();
         QString name = ui->lineEdit->text();
-        title.append(name);
-        ui->label_3->setText(title);
-        qDebug() << name;
-
+        QString line = "Single Item Report ";
+        line.append(name);
+        ui->label_3->setText(line);
         node<Product>* found = members.getInventory().search(name.toStdString());
-        if(found == NULL)
-            ui->textEdit->append("No item found.");
-        else{
-            ui->textEdit->append("Quantity: ");
-            ui->textEdit->append(QString::number(found->item.getQuantity()));
-            ui->textEdit->append("Total Sales Price: ");
-            ui->textEdit->append(QString::number(found->item.getTotal(),'f',2));
+        if(!found)
+            ui->textEdit->append("Item not found.");
+        else
+        {
+            line = "Item Name: ";
+            line.append(QString::fromStdString(found->item.getName()));
+            ui->textEdit->append(line);
+            line = "Quantity Sold: ";
+            line.append(QString::number(found->item.getQuantity()));
+            ui->textEdit->append(line);
+            line = "Total Sales Price (pre-tax): $";
+            line.append(QString::number(found->item.getSubtotal(),'f',2));
+            ui->textEdit->append(line);
+            line = "Total Sales Price (w/ tax): $";
+            line.append(QString::number(found->item.getTotal(),'f',2));
+            ui->textEdit->append(line);
         }
     }
+    else if(ui->groupBox->title() == "Member Lookup")
+    {
+        QString toFind = ui->lineEdit->text();
+        for(int i = 0; i < table->rowCount(); i++)
+        {
+            if(!table->item(i,0)->text().contains(toFind) &&
+               !table->item(i,1)->text().contains(toFind) &&
+               !table->item(i,2)->text().contains(toFind) &&
+               !table->item(i,3)->text().contains(toFind))
+                table->hideRow(i);
+        }
+    }
+    else if(ui->groupBox->title() == "Purchase Lookup")
+    {
+        QString toFind = ui->lineEdit->text();
+        for(int i = 0; i < table1->rowCount(); i++)
+        {
+            if(!table1->item(i,0)->text().contains(toFind) &&
+               !table1->item(i,1)->text().contains(toFind) &&
+               !table1->item(i,2)->text().contains(toFind) &&
+               !table1->item(i,3)->text().contains(toFind) &&
+               !table1->item(i,4)->text().contains(toFind))
+                table1->hideRow(i);
+        }
+    }
+    else if(ui->groupBox->title() == "Item Lookup")
+    {
+        QString toFind = ui->lineEdit->text();
+        for(int i = 0; i < table2->rowCount(); i++)
+        {
+            if(!table2->item(i,0)->text().contains(toFind) &&
+               !table2->item(i,1)->text().contains(toFind) &&
+               !table2->item(i,2)->text().contains(toFind))
+                table2->hideRow(i);
+        }
+    }
+
+
 }
 

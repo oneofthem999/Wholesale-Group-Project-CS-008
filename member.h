@@ -72,10 +72,11 @@ class memberList
         void addMember(member mem);
         void deleteMember(string firstName, string LastName);
         void deleteMember(string id);
-        bool editMember(member &updated, std::string first="", std::string last="", std::string id="", std::string type="", std::string exp="");
         void addPurchases(node<member>* mem, std::string date, Product &item);
         bool readMemberFile(std::string filename);
         bool readSalesFile(std::string filename);
+        void writeMemberFile(std::string filename);
+        void appendSalesFile(std::string filename, std::string memberID, purchase& append);
         // accessors
         node<member>* search(string id);
         node<member>* search(string firstName, string lastName);

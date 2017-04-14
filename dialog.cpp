@@ -7,8 +7,10 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
-    connect(ui->checkBox,SIGNAL(clicked(bool)),this,SLOT(chosen()));
-    connect(ui->checkBox_2,SIGNAL(clicked(bool)),this,SLOT(chosen2()));
+    pref = false;
+
+    connect(ui->checkBox,SIGNAL(clicked(bool)),this,SLOT(checkedPref()));
+    connect(ui->checkBox_2,SIGNAL(clicked(bool)),this,SLOT(checkedBasic()));
 }
 
 Dialog::~Dialog()
@@ -18,48 +20,18 @@ Dialog::~Dialog()
 
 void Dialog::on_buttonBox_accepted()
 {
-
-    firstName = ui->lineEdit->text();
+    firstName= ui->lineEdit->text();
     lastName = ui->lineEdit_2->text();
-
-   // firstName = QInputDialog::getText(this,tr("Enter Name"),tr("User Name"), QLineEdit::Normal,
-      //                                QDir::home().dirName(), &ok
-         //                             );
-    //ui->lineEdit->getText;
-
-
-
 }
 
-void Dialog::chosen()
+void Dialog::checkedPref()
 {
-    if(choice == true)
-    {
-        ui->checkBox_2->setEnabled(false);
-        choice = false;
-        pref = true;
-    }
-    else
-    {
-        ui->checkBox_2->setEnabled(true);
-        choice = true;
-        pref = false;
-    }
+    ui->checkBox_2->setChecked(false);
+    pref = true;
 }
 
-void Dialog::chosen2()
+void Dialog::checkedBasic()
 {
-    if(choice == true)
-    {
-        ui->checkBox->setEnabled(false);
-        choice = false;
-        basic = true;
-    }
-    else
-    {
-        ui->checkBox->setEnabled(true);
-        choice = true;
-        basic = false;
-    }
+    ui->checkBox->setChecked(false);
+    pref = false;
 }
-

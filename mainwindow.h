@@ -26,16 +26,23 @@ public:
     void showPurchases(node<member> *member);
 
 public slots:
-    void give();
     void profile();
+    void add();
     void remove();
+    void search();
+    void addPurchase();
+    void give();
     void salesReport();
+    void rebateReport();
+    void duesReport();
     void memberIDSearch();
     void memberNameSearch();
-    void itemSearch();
+    void itemNameSearch();
+    void memberTabSearch();
+    void purchaseTabSearch();
+    void itemTabSearch();
 
 private slots:
-    void on_pushButton_2_clicked();
     void on_pushButton_5_clicked();
 
 
@@ -45,6 +52,7 @@ private:
     QTableWidget* table;
     QTableWidget* table1;
     QTableWidget* table2;
+    QTableWidget* table3;
 
 };
 

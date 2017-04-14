@@ -1,5 +1,4 @@
 #include "inventory.h"
-#include <QDebug>
 using namespace std;
 
 Inventory::Inventory()
@@ -15,8 +14,8 @@ void Inventory::addToInventory(const Product &newItem)
     {
         int quantity = found->item.getQuantity() + newItem.getQuantity();
         found->item.setQuantity(quantity);
+        found->item.setTotal();
         totalValue += (newItem.getPrice() * newItem.getQuantity());
-
     }
     else
     {
@@ -59,12 +58,14 @@ node<Product> *Inventory::search(const Product& searchMe)
     return NULL;
 }
 
-node<Product> *Inventory::search(const string name)
+node<Product> *Inventory::search(const string& name)
 {
-    for (node<Product> *temp = inventory.begin(); temp != NULL; temp = temp->next)
+    node<Product> *temp = inventory.begin();
+    while (temp != NULL)
     {
-        if (temp->item.getName() == name)
+        if(temp->item.getName() == name)
             return temp;
+        temp = temp->next;
     }
     return NULL;
 }

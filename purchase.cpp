@@ -1,5 +1,4 @@
 #include "purchase.h"
-#include <QDebug>
 
 bool purchase::operator!=(const purchase& RHS)
 { return ((transactionDate != RHS.transactionDate) || (product != RHS.product)); }

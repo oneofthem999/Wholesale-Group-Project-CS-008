@@ -7,19 +7,19 @@ Product::Product(string productName, double price, int quantity):productName(pro
 //accessors
 
 void Product::setName(string name){
-    productName=name;
+    productName = name;
 }
 
 void Product::setPrice(double p){
-    price=p;
+    price = p;
 }
 
 void Product::setQuantity(int q){
-    quantity=q;
+    quantity = q;
 }
 
 void Product::setSubtotal(){
-    subtotal = price*quantity;
+    subtotal = price * quantity;
 }
 
 void Product::setTax(){

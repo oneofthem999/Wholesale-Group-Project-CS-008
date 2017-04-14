@@ -189,53 +189,35 @@ void memberList::addMember(member mem)
 
 void memberList::deleteMember(string firstName, string lastName)
 {
-    for (node<member>* temp = allMembers.begin(); temp != NULL; temp = temp->next)
+    node<member>* temp = search(firstName, lastName);
+    if(temp)
     {
-        if ((temp->item.getFirstName() == firstName) && (temp->item.getLastName() == lastName))
-        {
-            if (temp != allMembers.begin())
-                allMembers.DeleteNode(temp);
-            else
-                allMembers.DeleteHead();
-        }
+        if (temp != allMembers.begin())
+            allMembers.DeleteNode(temp);
+        else
+            allMembers.DeleteHead();
+        --numberOfMembers;
     }
+    else
+        qDebug() << "There is no member with the name " << QString::fromStdString(firstName)
+                 << " " << QString::fromStdString(lastName) << " stored in program." << endl;
 }
 
 void memberList::deleteMember(string id)
 {
     node<member>* temp = search(id);
-     if (temp != allMembers.begin())
-        allMembers.DeleteNode(temp);
-    else if (temp == allMembers.begin())
-        allMembers.DeleteHead();
+    if(temp)
+    {
+        if (temp != allMembers.begin())
+            allMembers.DeleteNode(temp);
+        else
+            allMembers.DeleteHead();
+        --numberOfMembers;
+    }
      else
          qDebug() << "There is no member with ID number " << QString::fromStdString(id) << " stored in program." << endl;
 }
 
-bool memberList::editMember(member &updated, std::string first, std::string last, std::string id, std::string type, std::string exp)
-{
-    node<member>* edit = search(updated.getID());
-    if(!first.empty()){
-        if(!edit->item.setName(first, edit->item.getLastName()))
-            return false;
-    }
-    if(!last.empty()){
-        if(!edit->item.setName(edit->item.getFirstName(), last))
-            return false;
-    }
-    if(!id.empty())
-    {
-        if(search(id) == NULL)
-            edit->item.setMembershipNumber(id);
-        else
-            return false;
-    }
-    if(!type.empty())
-        edit->item.setMembershipType(type);
-    if(!exp.empty())
-        edit->item.setExpirationDate(exp);
-    return true;
-}
 
 void memberList::addPurchases(node<member>* mem, std::string date, Product &item)
 {
@@ -381,6 +363,7 @@ bool memberList::readSalesFile(std::string filename)
             ss << memberID;
             ss >> memberID;
             getline(file, itemname);
+            itemname = itemname.substr(0,itemname.find("\r"));
             getline(file, numbers);
             ss << numbers;
             ss >> price >> quantity;
@@ -393,6 +376,34 @@ bool memberList::readSalesFile(std::string filename)
     }
     return false;
 }
+
+void memberList::writeMemberFile(std::string filename)
+{
+    fstream file;
+    file.open(filename, ios::out | ios::trunc);
+    node<member>* member = allMembers.begin();
+    while(member)
+    {
+        file << member->item.getFullName() << "\n";
+        file << member->item.getID() << "\n";
+        file << member->item.getMembershipType() << "\n";
+        file << member->item.getExpirationDate() << "\n";
+        member = member->next;
+    }
+    file.close();
+}
+
+void memberList::appendSalesFile(std::string filename, std::string memberID, purchase& append)
+{
+    fstream file;
+    file.open(filename, ios::out | ios::app);
+    file << append.transactionDate << "\n";
+    file << memberID << "\n";
+    file << append.product.getName() << "\n";
+    file << append.product.getPrice() << "	" << append.product.getQuantity() << "\n";
+    file.close();
+}
+
 
 ostream& operator<<(ostream& out, memberList& x)
 {
