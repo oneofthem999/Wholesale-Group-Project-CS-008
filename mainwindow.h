@@ -23,6 +23,7 @@ public:
     void getMemberInfo(std::string filename);
     void getSalesInfo(std::string filename);
     void display();
+    void showPurchases(node<member> *member);
 
 public slots:
     void give();
@@ -31,6 +32,7 @@ public slots:
     void salesReport();
     void memberIDSearch();
     void memberNameSearch();
+    void itemSearch();
 
 private slots:
     void on_pushButton_2_clicked();
