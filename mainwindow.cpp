@@ -4,6 +4,7 @@
 #include "member.h"
 #include "dailyreport.h"
 #include <QDebug>
+#include <time.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -98,6 +99,7 @@ void MainWindow::display()
 {
     if(ui->tabWidget->currentIndex() == 0){
         node<member>* cursor = members.getMembers().begin();
+        table->setRowCount(members.size());
         int row = 0;
         while(cursor != NULL)
         {
@@ -241,30 +243,30 @@ void MainWindow::memberIDSearch()
 void MainWindow::on_pushButton_2_clicked()
 {
     Dialog win;
+    string type;
+    string id;
+    string date;
+    string tempFirst;
+    string tempLast;
     win.setModal(true);
     win.exec();
 
-    if(win.firstName.length() != 0)
-    {
-        int row = table->rowCount() - 1;
-        table->setRowCount(row + 1);
-        table->setItem(row,0,new QTableWidgetItem(win.firstName+" "+win.lastName));
-        table->setItem(row,1,new QTableWidgetItem("78452"));
-        table->setItem(row,3,new QTableWidgetItem("04/13/2017"));
-        if(win.basic)
-            ui->tableWidget->setItem(row,2,new QTableWidgetItem("Basic"));
-        if(win.pref)
-            ui->tableWidget->setItem(row,2,new QTableWidgetItem("Preferred"));
-        for(int i = 0; i < 4; ++i)
-        {
-            table->item(row,i)->setFlags((table->item(row,i)->flags() ^ Qt::ItemIsEditable));
-            table->item(row,i)->setTextAlignment(Qt::AlignCenter);
-        }
+   if(win.pref == true)
+        type ="Preferred";
+    else
+        type ="Basic";
 
-    }
+    srand(time(NULL));
+    id = to_string(rand() % 90000 + 10000);
 
-    win.firstName.clear();
+    date = "04/17/13";
+    tempFirst = win.firstName.toStdString();
+    tempLast = win.lastName.toStdString();
 
+   member newMember(tempFirst, tempLast,id,type,date);
+   members.addMember(newMember);
+
+   display();
 
 }
 
