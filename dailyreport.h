@@ -15,7 +15,10 @@ class dailyReport
 {
 public:
     dailyReport(memberList totalMember, string date);
-    string getReport();
+    string getReportForAllMem(memberList* allMember);
+    string getReportForBasic(memberList* allMember);
+    string getReportForPreferred(memberList* allMember);
+    //string getReportForInv(memberList* allMember);
     int getTotalRevenue() const;
     int getPreferredMembers() const;
     int getBasicMembers() const;

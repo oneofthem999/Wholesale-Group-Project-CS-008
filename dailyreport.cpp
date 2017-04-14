@@ -38,7 +38,7 @@ dailyReport::dailyReport(memberList totalMember,string date)
     totalRevenue = dailyInventory.getTotalValue();
 }
 
-string dailyReport::getReport(){
+string dailyReport::getReportForAllMem(memberList* allMember){
     string report;
     /*
      * for(dailyMembers, from head to tail){
@@ -53,12 +53,53 @@ string dailyReport::getReport(){
     node<string>* IDWalker = dailyMembersID.begin();
     while(IDWalker){ //print all the ID
         report = report + IDWalker->item + " ";
+        node<member>* x = allMember->search(IDWalker->item);
+
+       report = report +  x->item.getFirstName() + " " + x->item.getLastName()+ " "
+                       +  x->item.getMembershipType()+ " "
+                       +  x->item.getExpirationDate() + "\n";
         IDWalker = IDWalker->next;
     }
 
     dailyInventory.print();
     return report;
 }
+
+
+string dailyReport::getReportForBasic(memberList* allMember){
+    string report;
+    node<string>* IDWalker = dailyMembersID.begin();
+    while(IDWalker){ //print all the ID
+        node<member>* x = allMember->search(IDWalker->item);
+        if(x->item.getMembershipType()=="Basic"){
+            report = report + IDWalker->item + " ";
+            report = report +  x->item.getFirstName() + " " + x->item.getLastName()+ " "
+                    +  x->item.getMembershipType()+ " "
+                    +  x->item.getExpirationDate() + "\n";
+        }
+        IDWalker = IDWalker->next;
+    }
+    dailyInventory.print();
+    return report;
+}
+
+string dailyReport::getReportForPreferred(memberList* allMember){
+    string report;
+    node<string>* IDWalker = dailyMembersID.begin();
+    while(IDWalker){ //print all the ID
+        node<member>* x = allMember->search(IDWalker->item);
+        if(x->item.getMembershipType()=="Preferred"){
+            report = report + IDWalker->item + " ";
+            report = report +  x->item.getFirstName() + " " + x->item.getLastName()+ " "
+                    +  x->item.getMembershipType()+ " "
+                    +  x->item.getExpirationDate() + "\n";
+        }
+        IDWalker = IDWalker->next;
+    }
+    dailyInventory.print();
+    return report;
+}
+
 
 int dailyReport::getTotalRevenue() const{
     return totalRevenue;
